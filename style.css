@@ -116,6 +116,24 @@ body {
   100% { transform: scale(1); }
 }
 
+.spinner-select {
+  margin-bottom: 20px;
+  color: white;
+  font-size: 14px;
+  text-align: center;
+}
+
+.spinner-select select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #1e3a8a;
+  color: white;
+  border: none;
+  font-size: 14px;
+  box-shadow: 0 0 8px rgba(255,255,255,0.2);
+  margin-left: 10px;
+}
+
 .buttons {
   display: flex;
   flex-wrap: wrap;
