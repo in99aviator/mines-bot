@@ -43,12 +43,12 @@ body {
 .leaderboard-horizontal {
   width: 100%;
   overflow: hidden;
-  background: rgba(0, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-top: 1px solid #00ffff55;
   border-bottom: 1px solid #00ffff55;
   padding: 3px 0;
   margin-top: 20px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .scrolling-text {
@@ -56,8 +56,8 @@ body {
   white-space: nowrap;
   color: #00ffff;
   font-size: 16px;
-  animation: scrollLeft 59s linear infinite;
-  text-shadow: 0 0 8px #00ffff;
+  animation: scrollLeft 5s linear infinite;
+  text-shadow: 0 0 4px #00ffff;
 }
 
 @keyframes scrollLeft {
