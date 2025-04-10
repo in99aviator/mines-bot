@@ -124,7 +124,7 @@ body {
 .cell.star {
   background-color: orange;
   animation: pulseStar 1s infinite;
-  box-shadow: 0 0 15px orange;
+  box-shadow: 0 0 8px orange;
 }
 
 .cell.star::before {
