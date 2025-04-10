@@ -1,12 +1,22 @@
 function generateStars() {
   const grid = document.getElementById("grid");
+  const mineCountSelect = document.getElementById("mineCount");
+  const mineCount = mineCountSelect ? parseInt(mineCountSelect.value || "1") : 1;
+
   grid.innerHTML = "";
 
-  for (let i = 0; i < 25; i++) {
+  const totalCells = 25;
+  const safeCells = mineCount;
+  const starCells = totalCells - safeCells;
+
+  const cellIndices = Array.from({ length: totalCells }, (_, i) => i);
+  const safeIndices = cellIndices.sort(() => 0.5 - Math.random()).slice(0, safeCells);
+
+  for (let i = 0; i < totalCells; i++) {
     const cell = document.createElement("div");
     cell.classList.add("cell");
 
-    if (Math.random() < 0.25) {
+    if (!safeIndices.includes(i)) {
       cell.classList.add("star");
     }
 
