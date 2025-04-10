@@ -22,6 +22,13 @@ const winnerNames = [
 ];
 const scrollingText = document.getElementById("scrollingText");
 
+function updateOnlineUsers() {
+  const users = Math.floor(Math.random() * 400) + 100; // 100 to 500
+  document.getElementById("onlineUsers").innerText = `Online Users: ${users}`;
+}
+
+setInterval(updateOnlineUsers, 3000); // update every 3 sec
+
 function getRandomAmount() {
   return (Math.floor(Math.random() * 10900) + 100) + ".00";
 }
