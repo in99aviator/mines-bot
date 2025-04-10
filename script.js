@@ -23,7 +23,7 @@ const winnerNames = [
 const scrollingText = document.getElementById("scrollingText");
 
 function getRandomAmount() {
-  return (Math.floor(Math.random() * 900) + 100) + ".00";
+  return (Math.floor(Math.random() * 10900) + 100) + ".00";
 }
 
 function generateHorizontalLeaderboard() {
