@@ -17,7 +17,7 @@ updateTimer();
 document.getElementById('payButton').addEventListener('click', () => {
   const selectedApp = document.querySelector('input[name="upiApp"]:checked').value;
 
-  const upiLink = "upi://pay?pa=test@upi&pn=Papaya%20Coders&am=1&cu=INR";
+  const upiLink = "upi://pay?pa=in99softdev78@upi&pn=ModXCrazy&am=1&cu=INR";
   let packageName = "";
 
   switch (selectedApp) {
