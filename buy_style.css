@@ -1,0 +1,88 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f2f3f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 400px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#timer {
+  background: #eee;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.qr-box {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.qr-section {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.label {
+  color: gray;
+  font-size: 14px;
+}
+
+.upi-info {
+  margin-top: 10px;
+  text-align: left;
+}
+
+.copy-row {
+  display: flex;
+  justify-content: space-between;
+  background: #f9f9f9;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 5px 0;
+}
+
+.instructions {
+  margin-top: 20px;
+}
+
+.instructions ol {
+  padding-left: 20px;
+}
+
+.paid-btn {
+  width: 100%;
+  padding: 15px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.paid-btn:hover {
+  background: #1b5e20;
+}
