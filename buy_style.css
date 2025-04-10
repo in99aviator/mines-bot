@@ -43,6 +43,11 @@ body {
   margin: 10px 0;
 }
 
+.qr-section canvas {
+  width: 260px !important;
+  height: 260px !important;
+}
+
 .label {
   color: gray;
   font-size: 14px;
