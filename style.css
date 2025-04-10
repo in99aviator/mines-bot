@@ -97,20 +97,37 @@ body {
 
 .buttons {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 12px;
 }
 
 .buttons button {
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 14px;
-  background: #ffffff;
+  color: #fff;
+  background: linear-gradient(135deg, #1e90ff, #007fff);
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 0 10px #ffffff88;
-  transition: background 0.3s;
+  box-shadow: 0 0 10px rgba(30, 144, 255, 0.6);
+  animation: glowPulse 2s infinite;
+  transition: transform 0.2s ease-in-out;
 }
 
 .buttons button:hover {
-  background-color: #e0e0e0;
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #007fff, #1e90ff);
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(30, 144, 255, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+  }
 }
