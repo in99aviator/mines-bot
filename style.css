@@ -20,32 +20,13 @@ body {
 .toolbar {
   background-color: #111;
   color: #00ffff;
-  padding: 12px 20px;
-  font-size: 18px;
+  padding: 12px;
+  text-align: center;
+  font-size: 20px;
   font-weight: bold;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
   border-bottom: 2px solid #00ffff66;
 }
-
-.toolbar-title {
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 20px;
-}
-
-.online-users {
-  font-family: 'Segoe UI', sans-serif;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
-}
-
-
 
 .leaderboard-horizontal {
   width: 100%;
