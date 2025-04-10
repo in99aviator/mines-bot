@@ -271,3 +271,48 @@ body {
   50% { box-shadow: 0 0 18px rgba(30, 144, 255, 0.9); }
   100% { box-shadow: 0 0 10px rgba(30, 144, 255, 0.5); }
 }
+
+.join-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 0 10px #27ae60;
+  transition: all 0.3s ease;
+}
+
+.join-btn::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 60%);
+  animation: pulse 2s infinite;
+  z-index: 0;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.join-btn:hover {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  box-shadow: 0 0 20px #2ecc71, 0 0 40px #27ae60;
+}
