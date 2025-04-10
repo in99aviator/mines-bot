@@ -16,7 +16,7 @@ function generateStars() {
 
 function updateStatus() {
   const status = document.getElementById("status");
-  status.innerText = "Mines Bot is: Connected to Server";
+  status.innerText = "Mines Bot is: Connected to Server ✅";
 }
 
 function showSignal() {
