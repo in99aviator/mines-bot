@@ -40,6 +40,30 @@ body {
   box-sizing: border-box;
 }
 
+.leaderboard-horizontal {
+  width: 100%;
+  overflow: hidden;
+  background: rgba(0, 255, 255, 0.1);
+  border-top: 1px solid #00ffff55;
+  border-bottom: 1px solid #00ffff55;
+  padding: 10px 0;
+  margin-top: 20px;
+}
+
+.scrolling-text {
+  display: inline-block;
+  white-space: nowrap;
+  color: #00ffff;
+  font-size: 16px;
+  animation: scrollLeft 25s linear infinite;
+  text-shadow: 0 0 8px #00ffff;
+}
+
+@keyframes scrollLeft {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
 .status-text {
   font-size: 14px;
   margin-bottom: 10px;
