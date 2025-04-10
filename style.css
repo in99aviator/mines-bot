@@ -124,7 +124,7 @@ body {
 .cell.star {
   background-color: orange;
   animation: pulseStar 1s infinite;
-  box-shadow: 0 0 8px orange;
+  box-shadow: 0 0 4px orange;
 }
 
 .cell.star::before {
@@ -151,10 +151,10 @@ body {
 
 .custom-spinner {
   padding: 10px 10px;
-  border: 2px solid #00ffff;
-  border-radius: 25px;
+  border: 1px solid #00ffff;
+  border-radius: 8px;
   background: rgba(0, 0, 0, 0.3);
-  color: #00ffff;
+  color: #ffffff;
   font-size: 12px;
   outline: none;
   text-align: center;
@@ -168,7 +168,7 @@ body {
 
 .custom-spinner:hover,
 .custom-spinner:focus {
-  box-shadow: 0 0 10px #00ffffaa;
+  box-shadow: 0 0 4px #00ffffaa;
   background: rgba(0, 0, 0, 0.5);
 }
 
