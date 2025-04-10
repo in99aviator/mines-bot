@@ -66,6 +66,14 @@ function generateStars() {
   }
 }
 
+function openDialog() {
+  document.getElementById("dialogOverlay").style.display = "flex";
+}
+
+function closeDialog() {
+  document.getElementById("dialogOverlay").style.display = "none";
+}
+
 function updateStatus() {
   const status = document.getElementById("status");
   status.innerText = "Bot Status is: Connected to Server ✅";
