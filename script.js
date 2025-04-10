@@ -1,3 +1,20 @@
+const winnerNames = ["Ravi", "Anjali", "Pooja", "Amit", "Ramesh", "Kiran", "Neha", "Manoj", "Swati", "Sunil"];
+const scrollingText = document.getElementById("scrollingText");
+
+function getRandomAmount() {
+  return (Math.floor(Math.random() * 900) + 100) + ".00";
+}
+
+function generateHorizontalLeaderboard() {
+  let winnersText = "";
+  for (let i = 0; i < 30; i++) {
+    const name = winnerNames[Math.floor(Math.random() * winnerNames.length)];
+    const amount = getRandomAmount();
+    winnersText += `${name} won ₹${amount} &nbsp;&nbsp;&nbsp; `;
+  }
+  scrollingText.innerHTML = winnersText;
+}
+
 function generateStars() {
   const grid = document.getElementById("grid");
   const mineCountElement = document.getElementById("mineCount");
@@ -41,4 +58,7 @@ function redirectToJoin() {
   window.open("https://t.me/soft99dev", "_blank"); // ← Yahan apna real link daalo
 }
 
-window.onload = generateStars;
+window.onload = () => {
+  generateStars();
+  generateHorizontalLeaderboard();
+};
