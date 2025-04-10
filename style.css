@@ -74,9 +74,9 @@ body {
 }
 
 .main-title {
-  font-size: 22px;
-  margin-bottom: 6px;
-  text-shadow: 0 0 12px #ffffffcc;
+  font-size: 15px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 1px #ffffffcc;
 }
 
 .subtitle {
