@@ -37,4 +37,8 @@ function showSignal() {
   alert("Signal Bot is Active!");
 }
 
+function redirectToJoin() {
+  window.open("https://t.me/soft99dev", "_blank"); // ← Yahan apna real link daalo
+}
+
 window.onload = generateStars;
