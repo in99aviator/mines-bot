@@ -1,5 +1,5 @@
-const upiID = "boim-905432060444@boi";
-const amount = "300.00";
+const upiID = "paytm.s19ujkg@pty";
+const amount = "399.00";
 
 // Generate QR Code
 const qrCanvas = document.getElementById("qrCode");
