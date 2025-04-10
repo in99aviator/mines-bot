@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy using UPI</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="close">&times;</span>
+      <h2>Buy using UPI</h2>
+      <div id="timer">05:00</div>
+    </div>
+
+    <div class="qr-box">
+      <p class="label">Scan QR code using UPI app</p>
+      <div class="qr-section">
+        <canvas id="qrCode"></canvas>
+      </div>
+      <div class="upi-info">
+        <p>UPI ID to pay manually</p>
+        <div class="copy-row">
+          <span id="upiId">paytm.s19ujkg@pty</span>
+          <button onclick="copyUPI()">📋</button>
+        </div>
+        <p>Amount</p>
+        <div class="copy-row">
+          <span>399.00 INR</span>
+          <button onclick="copyAmount()">📋</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h3>How to pay</h3>
+      <ol>
+        <li>Scan QR code or copy UPI ID</li>
+        <li>Pay using UPI app</li>
+        <li>After payment, come back and tap “I have paid”</li>
+      </ol>
+    </div>
+
+    <button class="pay-btn" onclick="window.location.href='index.html'">I have paid</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
