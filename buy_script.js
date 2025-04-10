@@ -1,43 +1,36 @@
-const upiID = "paytm.s19ujkg@pty";
-const amount = "399.00";
+let timeInSeconds = 900;
 
-// Generate QR Code
-const qrCanvas = document.getElementById("qrCode");
-const qrData = `upi://pay?pa=${upiID}&pn=User&am=${amount}&cu=INR`;
-QRCode.toCanvas(qrCanvas, qrData, function (error) {
-  if (error) console.error(error);
-});
-
-// Timer
-let timeLeft = 300;
-const timerElement = document.getElementById("timer");
+const timerElement = document.getElementById('timer');
 
 function updateTimer() {
-  let minutes = Math.floor(timeLeft / 60);
-  let seconds = timeLeft % 60;
-  timerElement.textContent =
-    `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-  if (timeLeft > 0) {
-    timeLeft--;
+  const minutes = Math.floor(timeInSeconds / 60);
+  const seconds = timeInSeconds % 60;
+  timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  if (timeInSeconds > 0) {
+    timeInSeconds--;
     setTimeout(updateTimer, 1000);
-  } else {
-    timerElement.textContent = "Expired";
   }
 }
 
 updateTimer();
 
-// Copy functions
-function copyUPI() {
-  navigator.clipboard.writeText(upiID);
-  alert("UPI ID copied!");
-}
+document.getElementById('payButton').addEventListener('click', () => {
+  const selectedApp = document.querySelector('input[name="upiApp"]:checked').value;
 
-function copyAmount() {
-  navigator.clipboard.writeText(amount + " INR");
-  alert("Amount copied!");
-}
+  const upiLink = "upi://pay?pa=test@upi&pn=Papaya%20Coders&am=1&cu=INR";
+  let packageName = "";
 
-function confirmPayment() {
-  window.location.href = "https://t.me/soft99dev"; // ← Replace with your actual redirect link
-}
+  switch (selectedApp) {
+    case "phonepe":
+      packageName = "com.phonepe.app";
+      break;
+    case "gpay":
+      packageName = "com.google.android.apps.nbu.paisa.user";
+      break;
+    case "paytm":
+      packageName = "net.one97.paytm";
+      break;
+  }
+
+  window.location.href = `intent://${upiLink}#Intent;scheme=upi;package=${packageName};end`;
+});
