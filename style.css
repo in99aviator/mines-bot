@@ -128,7 +128,7 @@ body {
 }
 
 .cell.star::before {
-  content: "⭐️";
+  content: "";
   font-size: 20px;
   color: white;
   background: none;
