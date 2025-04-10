@@ -18,18 +18,31 @@ body {
 }
 
 .toolbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: linear-gradient(90deg, #1e3a8a, #007fff);
-  color: white;
-  text-align: center;
-  padding: 14px 0;
+  background-color: #111;
+  color: #00ffff;
+  padding: 12px 20px;
   font-size: 18px;
   font-weight: bold;
-  z-index: 1000;
-  box-shadow: 0 0 10px rgba(0, 128, 255, 0.6);
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #00ffff66;
+}
+
+.toolbar-title {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 20px;
+}
+
+.online-users {
+  font-family: 'Segoe UI', sans-serif;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
 }
 
 .container {
