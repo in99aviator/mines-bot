@@ -142,14 +142,6 @@ body {
   100% { box-shadow: 0 0 10px rgba(30, 144, 255, 0.5); }
 }
 
-.container {
-  text-align: center;
-  width: 100%;
-  max-width: 400px;
-  padding: 80px 10px 20px;
-  box-sizing: border-box;
-}
-
 .toolbar {
   position: fixed;
   top: 0;
@@ -163,4 +155,12 @@ body {
   z-index: 1000;
   box-shadow: 0 0 10px rgba(0, 128, 255, 0.6);
   text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.container {
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 80px 10px 20px;
+  box-sizing: border-box;
 }
