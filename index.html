@@ -28,9 +28,9 @@
     <div class="grid" id="grid"></div>
 
     <!-- Spinner -->
-    <div class="spinner-select">
-  <label for="mineCount">Choose Mines (1–20):</label>
-  <select id="mineCount">
+    <div class="spinner-wrapper">
+  <label for="mineCount">Select Safe Cells:</label>
+  <select id="mineCount" class="custom-spinner" onchange="generateStars()">
     <option value="1">1</option>
     <option value="2">2</option>
     <option value="3">3</option>
