@@ -1,121 +1,114 @@
 body {
+  background: #f1f1f1;
   font-family: 'Segoe UI', sans-serif;
-  background: #f2f3f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
   margin: 0;
-  padding: 0;
 }
 
-.container {
-  max-width: 400px;
-  margin: 30px auto;
+.payment-box {
   background: #fff;
-  border-radius: 16px;
+  border-radius: 14px;
+  width: 360px;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.1);
   padding: 20px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
-.close {
-  font-size: 24px;
-  cursor: pointer;
+.header img {
+  width: 30px;
 }
 
-#timer {
-  background: #eee;
-  padding: 5px 10px;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-.qr-box {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.qr-section {
-  display: flex;
-  justify-content: center;
-  margin: 10px 0;
-}
-
-.qr-section canvas {
-  width: 260px !important;
-  height: 260px !important;
-}
-
-.label {
-  color: gray;
+.title {
   font-size: 14px;
-}
-
-.upi-info {
-  margin-top: 10px;
+  flex-grow: 1;
+  margin: 0 10px;
   text-align: left;
 }
 
-.copy-row {
-  display: flex;
-  justify-content: space-between;
-  background: #f9f9f9;
-  padding: 8px 12px;
-  border-radius: 10px;
+.amount {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.qr-section {
+  margin: 20px 0;
+}
+
+.qr {
+  width: 150px;
+  height: 150px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.status {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+#timer {
+  color: green;
+  font-weight: bold;
+}
+
+.upi-apps {
+  text-align: left;
+  margin: 20px 0;
+}
+
+.upi-apps h4 {
+  margin-bottom: 10px;
+}
+
+.upi-apps label {
+  display: block;
   margin: 5px 0;
+  font-size: 14px;
 }
 
-.instructions {
-  margin-top: 20px;
+.pay-options {
+  text-align: left;
+  font-size: 14px;
+  margin-top: 10px;
 }
 
-.instructions ol {
-  padding-left: 20px;
+.pay-options p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
 }
 
-.pay-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
+.powered {
+  font-size: 13px;
+  color: #999;
+  margin: 15px 0;
+}
+
+button {
+  background: #888;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 18px;
+  padding: 14px;
+  width: 100%;
+  border-radius: 10px;
   font-weight: bold;
+  font-size: 16px;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  box-shadow: 0 0 10px #27ae60;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease;
 }
 
-.pay-btn::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 60%);
-  animation: pulse 2s infinite;
-  z-index: 0;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.8);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-.pay-btn:hover {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-  box-shadow: 0 0 20px #2ecc71, 0 0 40px #27ae60;
+button:hover {
+  background: #666;
 }
