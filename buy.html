@@ -2,48 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buy using UPI</title>
+  <title>UPI Payment</title>
   <link rel="stylesheet" href="buy_style.css">
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="payment-box">
     <div class="header">
-      <span class="close">&times;</span>
-      <h2>Buy using UPI</h2>
-      <div id="timer">05:00</div>
+      <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
+      <span class="title">PAPAYA CODERS PRIVATE LIMITED</span>
+      <span class="amount">₹1</span>
     </div>
 
-    <div class="qr-box">
-      <p class="label">Scan QR code using UPI app</p>
-      <div class="qr-section">
-        <canvas id="qrCode"></canvas>
-      </div>
-      <div class="upi-info">
-        <p>UPI ID to pay manually</p>
-        <div class="copy-row">
-          <span id="upiId">paytm.s19ujkg@pty</span>
-          <button onclick="copyUPI()">📋</button>
-        </div>
-        <p>Amount</p>
-        <div class="copy-row">
-          <span>399.00 INR</span>
-          <button onclick="copyAmount()">📋</button>
-        </div>
-      </div>
+    <div class="qr-section">
+      <h3>Show QR Code</h3>
+      <p>Scan with any UPI app</p>
+      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=test@upi&pn=Papaya%20Coders&am=1" alt="QR Code">
+      <p class="status">Checking payment status… <span id="timer">15:00</span></p>
     </div>
 
-    <div class="instructions">
-      <h3>How to pay</h3>
-      <ol>
-        <li>Scan QR code or copy UPI ID</li>
-        <li>Pay using UPI app</li>
-        <li>After payment, come back and tap “I have paid”</li>
-      </ol>
+    <div class="upi-apps">
+      <h4>Select UPI App</h4>
+      <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
+      <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
+      <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
     </div>
 
-    <button class="paid-btn" onclick="confirmPayment()">I have paid</button>
+    <div class="pay-options">
+      <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> UPI ID - PhonePe, Gpay, Paytm & more</p>
+      <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-card-back-side.png"/> Card - Visa, Mastercard, Rupay</p>
+      <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-building.png"/> Net Banking - Choose your bank</p>
+    </div>
+
+    <p class="powered">Powered by <b>PhonePe</b></p>
+
+    <button id="payButton">PAY ₹1</button>
   </div>
 
   <script src="buy_script.js"></script>
