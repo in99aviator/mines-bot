@@ -1,4 +1,4 @@
-const winnerNames = ["Ravi", "Anjali", "Pooja", "Amit", "Ramesh", "Kiran", "Neha", "Manoj", "Swati", "Sunil"];
+const winnerNames = ["Brijesh", "Mohit Rao", "Vishal Pal", "Mukesh Yadav", "Vijay Pal", "Vinod Singh", "Rohit Thakur", "Abhishek", "Murari Y", "Lankesh", "Dilip", "Dipu Sharma", "Rahul Meena", "Bhim Yadav", "Goldi", "Kajal Yadav", "Sapna Yadav", "Sanjeev", "Abhinash", "Sreya", "Priya Singh", "Sandeep","Ravi", "Anjali", "Pooja", "Amit", "Ramesh", "Kiran", "Neha", "Manoj", "Swati", "Sunil"];
 const scrollingText = document.getElementById("scrollingText");
 
 function getRandomAmount() {
