@@ -6,17 +6,12 @@ function generateStars() {
     const cell = document.createElement("div");
     cell.classList.add("cell");
 
-    // 25% chance to show a star
     if (Math.random() < 0.25) {
       cell.classList.add("star");
-      cell.innerHTML = "★";
-    } else {
-      cell.innerHTML = "•";
     }
 
     grid.appendChild(cell);
   }
 }
 
-// Load default grid on page load
 window.onload = generateStars;
