@@ -56,9 +56,21 @@
 </div>
     <div class="buttons">
       <button onclick="generateStars()">Get Signal</button>
-      <button onclick="showSignal()">Check Bot</button>
+      <!--<button onclick="showSignal()">Check Bot</button>-->
+      <!-- Button to open dialog -->
+      <button onclick="openDialog()" class="open-btn">Open Dialog</button>
       <button onclick="updateStatus()">Mines Status</button>
     </div>
+
+<!-- Dialog Box -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box">
+    <h2>IN99Soft Dev Alert</h2>
+    <p>This is a custom styled dialog box with glow and animation!</p>
+    <button onclick="closeDialog()" class="close-btn">Close</button>
+  </div>
+</div>
+    
      <!-- Join Panel -->
   <div class="join-box" id="joinBox">
     <h2>Welcome to ModX Crazy 99!</h2>
