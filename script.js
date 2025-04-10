@@ -60,5 +60,5 @@ function redirectToJoin() {
 
 window.onload = () => {
   generateStars();
-  generateHorizontalLeaderboard();
 };
+generateHorizontalLeaderboard();
