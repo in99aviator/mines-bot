@@ -5,12 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Account Blocked</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    /* Same styles as before */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       height: 100vh;
       background: linear-gradient(135deg, #2c3e50, #34495e);
@@ -21,7 +17,6 @@
       justify-content: center;
       padding: 20px;
     }
-
     .card {
       background: #1e272e;
       padding: 40px 30px;
@@ -31,20 +26,17 @@
       width: 100%;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
-
     .card h1 {
       font-size: 32px;
       margin-bottom: 20px;
       color: #ff6b6b;
     }
-
     .card p {
       font-size: 16px;
       margin-bottom: 30px;
       line-height: 1.6;
       color: #dcdde1;
     }
-
     .btn {
       display: inline-block;
       padding: 12px 24px;
@@ -55,11 +47,9 @@
       font-weight: bold;
       transition: background 0.3s;
     }
-
     .btn:hover {
       background: #ff4c4c;
     }
-
     .icon {
       font-size: 48px;
       margin-bottom: 20px;
@@ -76,8 +66,38 @@
       If you believe this is a mistake, please contact support.
     </p>
     <a href="https://wa.me/916287037239?text=Hello%2C%20my%20account%20is%20blocked.%20Please%20help." class="btn" target="_blank">
-  Contact Support
-</a>
+      Contact Support
+    </a>
   </div>
+
+  <!-- Firebase Config -->
+  <script type="module">
+    import { app } from './firebase-config.js';
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        const userRef = ref(db, 'users/' + uid);
+
+        // Listen for live status change
+        onValue(userRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const status = snapshot.val().status;
+            if (status === 'active') {
+              window.location.href = 'index.html';
+            }
+          }
+        });
+      } else {
+        // Not logged in, redirect to login
+        window.location.href = "auth.html";
+      }
+    });
+  </script>
 </body>
 </html>
