@@ -3,41 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <title>UPI Payment</title>
-  <link rel="stylesheet" href="buy_style.css">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .payment-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .header img {
+      width: 40px;
+    }
+    .title {
+      display: block;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .amount {
+      font-size: 24px;
+      margin: 10px 0;
+      color: green;
+    }
+    .qr {
+      margin: 10px 0;
+      width: 150px;
+      height: 150px;
+    }
+    .upi-apps {
+      margin: 15px 0;
+      text-align: left;
+    }
+    .upi-apps label {
+      display: block;
+      margin: 5px 0;
+    }
+    .status {
+      font-size: 14px;
+      margin-top: 10px;
+      color: #333;
+    }
+    .pay-options {
+      font-size: 12px;
+      margin-top: 10px;
+      text-align: left;
+    }
+    .powered {
+      font-size: 12px;
+      margin-top: 10px;
+      color: gray;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="payment-box">
-    <div class="header">
-      <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
-      <span class="title">PAPAYA CODERS PRIVATE LIMITED</span>
-      <span class="amount">₹1</span>
-    </div>
 
-    <div class="qr-section">
-      <h3>Show QR Code</h3>
-      <p>Scan with any UPI app</p>
-      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=test@upi&pn=Papaya%20Coders&am=1" alt="QR Code">
-      <p class="status">Checking payment status… <span id="timer">15:00</span></p>
-    </div>
-
-    <div class="upi-apps">
-      <h4>Select UPI App</h4>
-      <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
-      <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
-      <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
-    </div>
-
-    <div class="pay-options">
-      <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> UPI ID - PhonePe, Gpay, Paytm & more</p>
-      <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-card-back-side.png"/> Card - Visa, Mastercard, Rupay</p>
-      <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-building.png"/> Net Banking - Choose your bank</p>
-    </div>
-
-    <p class="powered">Powered by <b>PhonePe</b></p>
-
-    <button id="payButton">PAY ₹1</button>
+<div class="payment-box">
+  <div class="header">
+    <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
+    <span class="title">PAPAYA CODERS PRIVATE LIMITED</span>
+    <span class="amount" id="amount">₹--</span>
   </div>
 
-  <script src="buy_script.js"></script>
+  <div class="qr-section">
+    <h3>Show QR Code</h3>
+    <p>Scan with any UPI app</p>
+    <img id="qrImage" class="qr" src="" alt="QR Code">
+    <p class="status">Checking payment status… <span id="timer">15:00</span></p>
+  </div>
+
+  <div class="upi-apps">
+    <h4>Select UPI App</h4>
+    <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
+    <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
+    <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
+  </div>
+
+  <div class="pay-options">
+    <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> UPI ID - PhonePe, Gpay, Paytm & more</p>
+    <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-card-back-side.png"/> Card - Visa, Mastercard, Rupay</p>
+    <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-building.png"/> Net Banking - Choose your bank</p>
+  </div>
+
+  <p class="powered">Powered by <b>PhonePe</b></p>
+
+  <button id="payButton" type="button">PAY</button>
+</div>
+
+<script>
+  // Firebase config (replace with your actual config)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let upiId = '';
+  let amount = '';
+
+  // Fetch UPI details from Firebase
+  db.ref("paymentDetails").once("value").then((snapshot) => {
+    const data = snapshot.val();
+    upiId = data.upiId;
+    amount = data.amount;
+
+    // Update UI
+    document.getElementById("amount").innerText = `₹${amount}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${upiId}&pn=Papaya%20Coders&am=${amount}&cu=INR`;
+    document.getElementById("qrImage").src = qrUrl;
+
+    // Update pay button text
+    document.getElementById("payButton").innerText = `PAY ₹${amount}`;
+  });
+
+  // Timer logic
+  let timeInSeconds = 900;
+  const timerElement = document.getElementById('timer');
+
+  function updateTimer() {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    if (timeInSeconds > 0) {
+      timeInSeconds--;
+      setTimeout(updateTimer, 1000);
+    }
+  }
+  updateTimer();
+
+  // Payment Intent logic
+  document.getElementById('payButton').addEventListener('click', () => {
+    const selectedApp = document.querySelector('input[name="upiApp"]:checked').value;
+
+    let packageName = "";
+    switch (selectedApp) {
+      case "phonepe":
+        packageName = "com.phonepe.app";
+        break;
+      case "gpay":
+        packageName = "com.google.android.apps.nbu.paisa.user";
+        break;
+      case "paytm":
+        packageName = "net.one97.paytm";
+        break;
+    }
+
+    const upiLink = `upi://pay?pa=${upiId}&pn=Papaya%20Coders&am=${amount}&cu=INR`;
+    window.location.href = `intent://${upiLink}#Intent;scheme=upi;package=${packageName};end`;
+  });
+</script>
+
 </body>
 </html>
