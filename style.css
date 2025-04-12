@@ -32,6 +32,20 @@ body {
   text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
+.logout-btn {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 9999;
+}
+
 .container {
   text-align: center;
   width: 100%;
