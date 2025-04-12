@@ -1,30 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Mines Premium Bot Ai</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Toolbar -->
   <div class="toolbar">•Mines Bot AI•</div>
 
-  <!-- Loading Overlay -->
   <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center;">
-    <div style="text-align:center;">
-      <div class="loader"></div>
-      <p style="color:white; margin-top:15px;">Please wait...</p>
-    </div>
+  <div style="text-align:center;">
+    <div class="loader"></div>
+    <p style="color:white; margin-top:15px;">Please wait...</p>
   </div>
-
+</div>
+  
+  <!-- Main App -->
   <div class="container">
     <div class="status-text" id="status">Bot Status is: Connected Server ✅</div>
+
     <h1 class="main-title">Mines Bot 100% Working now Make Money 💸 and Enjoy💀</h1>
+
+    
     <h2 class="subtitle">Mines Bot VIP</h2>
 
     <div class="leaderboard-horizontal">
-      <div class="scrolling-text" id="scrollingText"></div>
-    </div>
+  <div class="scrolling-text" id="scrollingText"></div>
+</div>
+
+    
 
     <div class="grid" id="grid"></div>
 
@@ -55,29 +61,31 @@
   </select>
       
 </div>
-
     <div class="buttons">
       <button onclick="generateStars()">Get Signal</button>
+      <!--<button onclick="showSignal()">Check Bot</button>-->
+      <!-- Button to open dialog -->
       <button onclick="openDialog()" class="open-btn">Check Bot</button>
       <button onclick="updateStatus()">Mines Status</button>
     </div>
 
-    <!-- Dialog Box -->
-    <div class="dialog-overlay" id="dialogOverlay">
-      <div class="dialog-box">
-        <h2>Mines Bot Ai</h2>
-        <p>Bot Ai is Succesfully connected ✅!</p>
-        <button onclick="closeDialog()" class="close-btn">Close</button>
-      </div>
-    </div>
-
-    <!-- Join Panel -->
-    <div class="join-box" id="joinBox">
-      <h2>Welcome to ModX Crazy 99!</h2>
-      <p>This is your mines bet to the premium experience. Stay connected, stay winning! 💰</p>
-    </div>
+<!-- Dialog Box -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box">
+    <h2>Mines Bot Ai</h2>
+    <p>Bot Ai is Succesfully connected ✅!</p>
+    <button onclick="closeDialog()" class="close-btn">Close</button>
+  </div>
+</div>
+    
+     <!-- Join Panel -->
+  <div class="join-box" id="joinBox">
+    <h2>Welcome to ModX Crazy 99!</h2>
+    <p>This is your mines bet to the premium experience. Stay connected, stay winning! 💰</p>
+  </div>
 
     <button onclick="redirectToJoin()" class="join-btn">Telegram Channel Join</button>
+    
   </div>
 
   <script type="module" src="script.js"></script>
