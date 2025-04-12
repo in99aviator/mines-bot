@@ -114,16 +114,15 @@
   <script src="firebase-config.js"></script>
 <script>
   
-  firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
   let upiId = '';
   let amount = '';
 
   // Fetch UPI details from Firebase
-  db.ref("paymentDetails").once("value").then((snapshot) => {
+  db.ref("settings").once("value").then((snapshot) => {
     const data = snapshot.val();
-    upiId = data.upiId;
+    upiId = data.upi;
     amount = data.amount;
 
     // Update UI
