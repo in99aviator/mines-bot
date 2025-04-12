@@ -10,119 +10,146 @@
   <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .payment-box {
-      width: 100%;
-      max-width: 400px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    .header img {
-      width: 40px;
-      height: 40px;
-    }
-    .title {
-      flex-grow: 1;
-      margin-left: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .amount {
-      font-size: 18px;
-      color: green;
-      font-weight: bold;
-    }
-    .qr {
-      margin-top: 10px;
-      width: 180px;
-      height: 180px;
-    }
-    .qr-card {
-      border: 2px solid #ccc;
-      border-radius: 0;
-      padding: 10px;
-      width: 200px;
-      text-align: center;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin: 20px 0;
-    }
-    .qr-card-title {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #333;
-    }
-    .upi-apps {
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    .upi-apps label {
-      display: block;
-      margin: 5px 0;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .status {
-      font-size: 14px;
-      color: #444;
-      margin: 10px 0;
-    }
-    button {
-      background: #4CAF50;
-      color: #fff;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      width: 100%;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .loader {
-      display: none;
-    }
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 6px;
-      display: none;
-      z-index: 999;
-      font-size: 14px;
-    }
+    * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f2f5;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.payment-box {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.header img {
+  width: 40px;
+  height: 40px;
+}
+.title {
+  flex-grow: 1;
+  margin-left: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.amount {
+  font-size: 18px;
+  color: green;
+  font-weight: bold;
+}
+.qr {
+  margin-top: 10px;
+  width: 180px;
+  height: 180px;
+}
+.qr-card {
+  border: 2px solid #ccc;
+  border-radius: 0;
+  padding: 10px;
+  width: 200px;
+  text-align: center;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin: 10px 0 20px;
+}
+.qr-card-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+.status {
+  font-size: 14px;
+  color: #444;
+  margin: 10px 0;
+  width: 100%;
+  text-align: center;
+}
+.upi-apps {
+  width: 100%;
+  margin-bottom: 10px;
+}
+.upi-apps label {
+  display: block;
+  margin: 5px 0;
+  font-size: 14px;
+}
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  margin: 5px 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+button {
+  background: #4CAF50;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+  background: #45a049;
+  transform: scale(1.02);
+}
+#confirmPaymentBtn {
+  background: #2196F3;
+}
+#confirmPaymentBtn:hover {
+  background: #1976D2;
+  transform: scale(1.02);
+}
+.loader {
+  display: none;
+}
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  display: none;
+  z-index: 999;
+  font-size: 14px;
+  animation: fadeInOut 3s ease-in-out;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; bottom: 20px; }
+  10% { opacity: 1; bottom: 30px; }
+  90% { opacity: 1; bottom: 30px; }
+  100% { opacity: 0; bottom: 20px; }
+}
   </style>
 </head>
 <body>
@@ -134,12 +161,33 @@
     <span class="amount" id="amount">₹--</span>
   </div>
 
+  <!-- Method 1 -->
+  <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin-bottom: 5px;">
+    1. Method Scan QR and Payment
+  </div>
+
   <div class="qr-card">
     <div class="qr-card-title">Scan any UPI App</div>
     <img id="qrImage" class="qr" src="" alt="QR Code">
   </div>
 
-  <div class="status">Cheking Payment Status in: <span id="timer">15:00</span> <span id="loader" class="loader"></span></div>
+  <div class="status">
+    Checking Payment Status in: <span id="timer">15:00</span>
+    <span id="loader" class="loader"></span>
+  </div>
+
+  <!-- UTR Section -->
+  <div style="width: 100%; margin-top: 10px; text-align: left;">Enter UTR Number</div>
+  <input type="text" id="utr" placeholder="Enter UTR (optional)">
+  <button id="confirmPaymentBtn" style="background-color: #2196F3; margin-bottom: 15px;">Confirm Payment</button>
+
+  <!-- Method 2 -->
+  <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin-bottom: 3px;">
+    2. Method Pay any UPI App easy
+  </div>
+  <div style="width: 100%; font-size: 13px; color: #666; margin-bottom: 10px;">
+    Method 2 is faster and easy
+  </div>
 
   <div class="upi-apps">
     <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
@@ -147,8 +195,6 @@
     <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
   </div>
 
-  <div class="enterUTR">Enter UTR Number</div>
-  <input type="text" id="utr" placeholder="Enter UTR (optional)">
   <button id="payButton">PAY</button>
 </div>
 
@@ -227,6 +273,36 @@
     });
   }
 
+  // ConfirmPayment Button
+  confirmPaymentBtn.addEventListener("click", () => {
+  const utr = utrInput.value.trim();
+  const selectedApp = document.querySelector('input[name="upiApp"]:checked')?.value;
+
+  if (!utr || !selectedApp) {
+    alert("Please enter UTR and select a UPI App.");
+    return;
+  }
+
+  const txn = {
+    utr,
+    app: "UPI",
+    amount,
+    upi: upiId,
+    status: "Pending",
+    date: new Date().toLocaleString()
+  };
+
+  push(ref(db, "transactions"), txn)
+    .then(() => {
+      successAnimation.style.display = "block";
+      setTimeout(() => location.reload(), 3000);
+    })
+    .catch((err) => {
+      alert("Error saving transaction.");
+      console.error(err);
+    });
+});
+
   payButton.addEventListener("click", () => {
     const app = document.querySelector('input[name="upiApp"]:checked').value;
     const utr = utrInput.value.trim() || "-";
@@ -238,14 +314,6 @@
       case "gpay": pkg = "com.google.android.apps.nbu.paisa.user"; break;
       case "paytm": pkg = "net.one97.paytm"; break;
     }
-
-    push(ref(db, "transactions"), {
-      amount,
-      app,
-      date,
-      status: "pending",
-      utr
-    });
 
     const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
