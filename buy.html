@@ -7,56 +7,64 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
+    body, html {
+      height: 100%;
+      width: 100%;
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background: #f2f2f2;
     }
     .payment-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100%;
+      padding: 20px;
+      background: #fff;
+    }
+    .payment-box-inner {
       background: #fff;
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 12px;
       width: 100%;
-      max-width: 360px;
+      max-width: 400px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 10px;
     }
     .header img { width: 40px; height: 40px; }
     .title {
-      flex-grow: 1;
       font-weight: bold;
-      font-size: 15px;
+      font-size: 16px;
       margin-left: 10px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex-grow: 1;
     }
     .amount {
       font-size: 18px;
       color: green;
       font-weight: bold;
-      margin-left: auto;
     }
     .qr { margin: 15px 0; width: 150px; height: 150px; }
-    .upi-apps, .pay-options { margin: 10px 0; }
-    .upi-apps label { display: block; margin-bottom: 5px; }
-    .status { font-size: 14px; margin: 10px 0; color: #444; }
-    .powered { font-size: 12px; color: #888; margin-top: 10px; }
-    .utr-input {
-      margin: 10px 0;
+    .upi-apps, .pay-options, .utr-input, .status {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .upi-apps label {
+      display: block;
+      margin-bottom: 5px;
     }
     input[type="text"] {
       width: 100%;
       padding: 8px;
       font-size: 14px;
-      margin-bottom: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
     }
@@ -68,7 +76,13 @@
       width: 100%;
       font-size: 16px;
       border-radius: 5px;
+      margin-top: 10px;
       cursor: pointer;
+    }
+    .powered {
+      font-size: 12px;
+      color: #888;
+      margin-top: 10px;
     }
     .loader {
       border: 4px solid #f3f3f3;
@@ -84,50 +98,71 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    @media (max-width: 400px) {
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .title, .amount {
-        margin-top: 5px;
-      }
+
+    /* Toast Styles */
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #323232;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 12px;
+      position: fixed;
+      z-index: 100;
+      left: 50%;
+      bottom: 30px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.4s, bottom 0.4s;
+    }
+
+    #toast.show {
+      visibility: visible;
+      bottom: 50px;
+      opacity: 1;
     }
   </style>
 </head>
 <body>
 
 <div class="payment-box">
-  <div class="header">
-    <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
-    <span class="title">MODX CRAZY TEAM</span>
-    <span class="amount" id="amount">₹--</span>
-  </div>
+  <div class="payment-box-inner">
+    <div class="header">
+      <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
+      <span class="title">MODX CRAZY TEAM</span>
+      <span class="amount" id="amount">₹--</span>
+    </div>
 
-  <div class="qr-section">
-    <h3>Scan to Pay</h3>
-    <img id="qrImage" class="qr" src="" alt="QR Code">
-    <p class="status">Checking payment status… <span id="timer">15:00</span><span id="loader" class="loader"></span></p>
-  </div>
+    <div class="qr-section">
+      <h3>Scan to Pay</h3>
+      <img id="qrImage" class="qr" src="" alt="QR Code">
+      <p class="status">Checking payment status… <span id="timer">15:00</span><span id="loader" class="loader"></span></p>
+    </div>
 
-  <div class="upi-apps">
-    <h4>Select UPI App</h4>
-    <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
-    <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
-    <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
-  </div>
+    <div class="upi-apps">
+      <h4>Select UPI App</h4>
+      <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
+      <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
+      <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
+    </div>
 
-  <div class="utr-input">
-    <input type="text" id="utr" placeholder="Enter UTR if available (optional)">
-  </div>
+    <div class="utr-input">
+      <input type="text" id="utr" placeholder="Enter UTR if available (optional)">
+    </div>
 
-  <div class="pay-options">
-    <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> Scan with UPI App</p>
-  </div>
+    <div class="pay-options">
+      <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> Scan with UPI App</p>
+    </div>
 
-  <p class="powered">Powered by <b>PhonePe</b></p>
-  <button id="payButton">PAY</button>
+    <p class="powered">Powered by <b>PhonePe</b></p>
+    <button id="payButton">PAY</button>
+  </div>
 </div>
+
+<!-- Toast Notification -->
+<div id="toast"></div>
 
 <script>
   const firebaseConfig = {
@@ -149,6 +184,13 @@
   const loader = document.getElementById("loader");
   const timerElement = document.getElementById("timer");
   const utrInput = document.getElementById("utr");
+
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.className = "show";
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+  }
 
   let upiId = '', amount = '';
 
@@ -187,13 +229,12 @@
 
     const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
     const dateTime = new Date().toLocaleString();
 
     db.ref("transactions").push({
       amount,
-      upi: selectedApp,
-      date,
+      upiApp: selectedApp,
+      dateTime,
       status: "pending",
       utr: utr || "-"
     });
@@ -201,12 +242,11 @@
     if (isMobile) {
       const intentURL = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${packageName};end`;
       window.location.href = intentURL;
-
       setTimeout(() => {
-        alert("If app didn't open, try scanning the QR code.");
+        showToast("If app didn't open, try scanning the QR code.");
       }, 3000);
     } else {
-      alert("Use a mobile device to open UPI apps directly.");
+      showToast("Use a mobile device to open UPI apps directly.");
     }
   });
 
@@ -216,9 +256,11 @@
     if (status === "success") {
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
+      showToast("Payment received successfully!");
     } else if (status === "failed") {
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
+      showToast("Payment failed.");
     }
   });
 </script>
