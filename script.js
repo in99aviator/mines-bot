@@ -91,30 +91,40 @@ function generateHorizontalLeaderboard() {
 
 
   onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const uid = user.uid;
-      const userRef = ref(db, "users/" + uid);
-      get(userRef).then(snapshot => {
-        if (snapshot.exists()) {
-          const status = snapshot.val().status;
-          if (status === "active") {
-            generateStars();
-            updateStatus();
-          } else if (status === "blocked") {
-            window.location.href = "blocked.html";
-          } else {
-            window.location.href = "buy.html";
-          }
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  if (user) {
+    loadingOverlay.style.display = "flex"; // Show loader
+
+    const uid = user.uid;
+    const userRef = ref(db, "users/" + uid);
+    get(userRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const status = snapshot.val().status;
+        if (status === "active") {
+          generateStars();
+          updateStatus();
+          loadingOverlay.style.display = "none"; // Hide after load
+        } else if (status === "blocked") {
+          loadingOverlay.innerText = "Redirecting to blocked page...";
+          setTimeout(() => window.location.href = "blocked.html", 1000);
         } else {
-          window.location.href = "splash.html";
+          loadingOverlay.innerText = "Redirecting to payment page...";
+          setTimeout(() => window.location.href = "buy.html", 1000);
         }
-      }).catch(() => {
-        window.location.href = "splash.html";
-      });
-    } else {
-      window.location.href = "splash.html";
-    }
-  });
+      } else {
+        loadingOverlay.innerText = "Redirecting to login...";
+        setTimeout(() => window.location.href = "login.html", 1000);
+      }
+    }).catch(() => {
+      loadingOverlay.innerText = "Something went wrong. Redirecting...";
+      setTimeout(() => window.location.href = "login.html", 1000);
+    });
+
+  } else {
+    loadingOverlay.innerText = "Checking session...";
+    setTimeout(() => window.location.href = "login.html", 1000);
+  }
+});
 
   function openDialog() {
     document.getElementById("dialogOverlay").style.display = "flex";
