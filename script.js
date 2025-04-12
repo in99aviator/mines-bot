@@ -36,40 +36,51 @@
     "Wasim", "Mehar", "Mubin", "Ifra", "Abrar", "Misbah", "Zeeshan", "Areeba", "Nasir", "Hoorain"
   ];
 
-  function getRandomAmount() {
-    return (Math.floor(Math.random() * 10900) + 100) + ".00";
-  }
+  const scrollingText = document.getElementById("scrollingText");
 
-  function generateHorizontalLeaderboard() {
-    const scrollingText = document.getElementById("scrollingText");
-    let winnersText = "";
-    for (let i = 0; i < 30; i++) {
-      const name = winnerNames[Math.floor(Math.random() * winnerNames.length)];
-      const amount = getRandomAmount();
-      winnersText += `${name} won ₹${amount} &nbsp;&nbsp;&nbsp; `;
-    }
-    scrollingText.innerHTML = winnersText;
+function getRandomAmount() {
+  return (Math.floor(Math.random() * 10900) + 100) + ".00";
+}
+
+function generateHorizontalLeaderboard() {
+  let winnersText = "";
+  for (let i = 0; i < 30; i++) {
+    const name = winnerNames[Math.floor(Math.random() * winnerNames.length)];
+    const amount = getRandomAmount();
+    winnersText += `${name} won ₹${amount} &nbsp;&nbsp;&nbsp; `;
   }
+  scrollingText.innerHTML = winnersText;
+}
 
   function generateStars() {
-    const grid = document.getElementById("grid");
-    const mineCountElement = document.getElementById("mineCount");
-    const safeCount = mineCountElement ? parseInt(mineCountElement.value) : 1;
+  const grid = document.getElementById("grid");
+  const mineCountElement = document.getElementById("mineCount");
+  const safeCount = mineCountElement ? parseInt(mineCountElement.value) : 1;
 
-    grid.innerHTML = "";
-    const totalCells = 25;
-    const indices = Array.from({ length: totalCells }, (_, i) => i);
-    const safeIndices = indices.sort(() => 0.5 - Math.random()).slice(0, safeCount);
+  grid.innerHTML = "";
 
-    for (let i = 0; i < totalCells; i++) {
-      const cell = document.createElement("div");
-      cell.classList.add("cell");
-      if (!safeIndices.includes(i)) {
-        cell.classList.add("star");
-      }
-      grid.appendChild(cell);
+  const totalCells = 25;
+
+  // Generate 25 cell indices: 0 to 24
+  const indices = Array.from({ length: totalCells }, (_, i) => i);
+
+  // Shuffle and pick `safeCount` indices to be empty
+  const safeIndices = indices
+    .sort(() => 0.5 - Math.random())
+    .slice(0, safeCount);
+
+  for (let i = 0; i < totalCells; i++) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+
+    // Add star only if not in safe indices
+    if (!safeIndices.includes(i)) {
+      cell.classList.add("star");
     }
+
+    grid.appendChild(cell);
   }
+}
 
   function updateStatus() {
     const status = document.getElementById("status");
@@ -88,7 +99,6 @@
           const status = snapshot.val().status;
           if (status === "active") {
             generateStars();
-            generateHorizontalLeaderboard();
             updateStatus();
           } else if (status === "blocked") {
             window.location.href = "blocked.html";
@@ -121,3 +131,4 @@
   function redirectToJoin() {
     window.open("https://t.me/soft99dev", "_blank");
   }
+generateHorizontalLeaderboard();
