@@ -52,20 +52,21 @@ submitBtn.addEventListener("click", () => {
   }
 
   if (isRegister) {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        const uid = userCredential.user.uid;
-        const date = new Date().toLocaleString();
-        set(ref(db, "users/" + uid), {
-          name, email, password, status: "active", registrationDate: date
-        }).then(() => showToast("User registered successfully!"));
-      })
-      .catch(err => showToast(err.message));
-  } else {
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => showToast("Logged in successfully!"))
-      .catch(err => showToast(err.message));
-  }
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(userCredential => {
+      const uid = userCredential.user.uid;
+      const date = new Date().toLocaleString();
+      set(ref(db, "users/" + uid), {
+        uid: uid, // <--- this line adds UID
+        name: name,
+        email: email,
+        password: password,
+        status: "active",
+        registrationDate: date
+      }).then(() => showToast("User registered successfully!"));
+    })
+    .catch(err => showToast(err.message));
+}
 });
 
 // Toast
