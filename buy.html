@@ -2,34 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>UPI Payment - MODX TEAM</title>
+  <title>MODX UPI Payment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html {
-      height: 100%;
-      width: 100%;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
       font-family: Arial, sans-serif;
-      background: #f2f2f2;
+      background: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
     .payment-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
       width: 100%;
-      padding: 20px;
-      background: #fff;
-    }
-    .payment-box-inner {
+      max-width: 400px;
       background: #fff;
       padding: 20px;
       border-radius: 12px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -40,49 +37,59 @@
       width: 100%;
       margin-bottom: 10px;
     }
-    .header img { width: 40px; height: 40px; }
+    .header img {
+      width: 40px;
+      height: 40px;
+    }
     .title {
-      font-weight: bold;
-      font-size: 16px;
-      margin-left: 10px;
       flex-grow: 1;
+      margin-left: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .amount {
       font-size: 18px;
       color: green;
       font-weight: bold;
     }
-    .qr { margin: 15px 0; width: 150px; height: 150px; }
-    .upi-apps, .pay-options, .utr-input, .status {
+    .qr {
+      margin: 20px 0;
+      width: 180px;
+      height: 180px;
+    }
+    .upi-apps {
       width: 100%;
-      margin-top: 10px;
+      margin-bottom: 10px;
     }
     .upi-apps label {
       display: block;
-      margin-bottom: 5px;
+      margin: 5px 0;
     }
     input[type="text"] {
       width: 100%;
       padding: 8px;
       font-size: 14px;
-      border-radius: 4px;
+      margin-bottom: 10px;
       border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .status {
+      font-size: 14px;
+      color: #444;
+      margin: 10px 0;
     }
     button {
       background: #4CAF50;
-      color: white;
-      border: none;
+      color: #fff;
       padding: 10px;
+      border: none;
+      border-radius: 5px;
       width: 100%;
       font-size: 16px;
-      border-radius: 5px;
-      margin-top: 10px;
       cursor: pointer;
-    }
-    .powered {
-      font-size: 12px;
-      color: #888;
-      margin-top: 10px;
     }
     .loader {
       border: 4px solid #f3f3f3;
@@ -98,73 +105,47 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    /* Toast Styles */
-    #toast {
-      visibility: hidden;
-      min-width: 250px;
-      margin-left: -125px;
-      background-color: #323232;
-      color: #fff;
-      text-align: center;
-      border-radius: 5px;
-      padding: 12px;
+    .toast {
       position: fixed;
-      z-index: 100;
-      left: 50%;
       bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      display: none;
+      z-index: 999;
       font-size: 14px;
-      opacity: 0;
-      transition: opacity 0.4s, bottom 0.4s;
-    }
-
-    #toast.show {
-      visibility: visible;
-      bottom: 50px;
-      opacity: 1;
     }
   </style>
 </head>
 <body>
 
 <div class="payment-box">
-  <div class="payment-box-inner">
-    <div class="header">
-      <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
-      <span class="title">MODX CRAZY TEAM</span>
-      <span class="amount" id="amount">₹--</span>
-    </div>
-
-    <div class="qr-section">
-      <h3>Scan to Pay</h3>
-      <img id="qrImage" class="qr" src="" alt="QR Code">
-      <p class="status">Checking payment status… <span id="timer">15:00</span><span id="loader" class="loader"></span></p>
-    </div>
-
-    <div class="upi-apps">
-      <h4>Select UPI App</h4>
-      <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
-      <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
-      <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
-    </div>
-
-    <div class="utr-input">
-      <input type="text" id="utr" placeholder="Enter UTR if available (optional)">
-    </div>
-
-    <div class="pay-options">
-      <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> Scan with UPI App</p>
-    </div>
-
-    <p class="powered">Powered by <b>PhonePe</b></p>
-    <button id="payButton">PAY</button>
+  <div class="header">
+    <img src="https://img.icons8.com/color/48/shopping-bag.png" alt="icon">
+    <span class="title">MODX CRAZY TEAM</span>
+    <span class="amount" id="amount">₹--</span>
   </div>
+
+  <img id="qrImage" class="qr" src="" alt="QR Code">
+  <div class="status">Status: <span id="timer">15:00</span> <span id="loader" class="loader"></span></div>
+
+  <div class="upi-apps">
+    <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
+    <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
+    <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
+  </div>
+
+  <input type="text" id="utr" placeholder="Enter UTR (optional)">
+  <button id="payButton">PAY</button>
 </div>
 
-<!-- Toast Notification -->
-<div id="toast"></div>
+<div class="toast" id="toast"></div>
 
 <script>
+  // Init Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
     authDomain: "pg-data-ed1c2.firebaseapp.com",
@@ -172,43 +153,35 @@
     projectId: "pg-data-ed1c2",
     storageBucket: "pg-data-ed1c2.appspot.com",
     messagingSenderId: "884858492190",
-    appId: "1:884858492190:web:67b7606ff790064ef3250f",
-    measurementId: "G-J73RD8EH7W"
+    appId: "1:884858492190:web:67b7606ff790064ef3250f"
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
+  // Elements
   const amountElem = document.getElementById("amount");
   const qrImage = document.getElementById("qrImage");
+  const timerElement = document.getElementById("timer");
   const payButton = document.getElementById("payButton");
   const loader = document.getElementById("loader");
-  const timerElement = document.getElementById("timer");
   const utrInput = document.getElementById("utr");
-
-  function showToast(message) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.className = "show";
-    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-  }
+  const toast = document.getElementById("toast");
 
   let upiId = '', amount = '';
 
-  db.ref("settings").on("value", (snapshot) => {
-    const data = snapshot.val();
-    upiId = data.upi;
-    amount = data.amount;
+  // Show toast
+  function showToast(msg) {
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 3000);
+  }
 
-    amountElem.innerText = `₹${amount}`;
-    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${upiId}&pn=MODX%20TEAM&am=${amount}&cu=INR`;
-    payButton.innerText = `PAY ₹${amount}`;
-  });
-
+  // Timer
   let timeInSeconds = 900;
   function updateTimer() {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    const m = Math.floor(timeInSeconds / 60);
+    const s = timeInSeconds % 60;
+    timerElement.textContent = `${m}:${s.toString().padStart(2, '0')}`;
     if (timeInSeconds > 0) {
       timeInSeconds--;
       setTimeout(updateTimer, 1000);
@@ -216,47 +189,71 @@
   }
   updateTimer();
 
-  payButton.addEventListener("click", () => {
-    const selectedApp = document.querySelector('input[name="upiApp"]:checked').value;
-    const utr = utrInput.value.trim();
-    let packageName = "";
+  // Fetch Realtime UPI & Amount
+  db.ref("settings").on("value", (snapshot) => {
+    const data = snapshot.val();
+    upiId = data.upi;
+    amount = data.amount;
+    amountElem.innerText = `₹${amount}`;
+    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
+    payButton.innerText = `PAY ₹${amount}`;
+  });
 
-    switch (selectedApp) {
-      case "phonepe": packageName = "com.phonepe.app"; break;
-      case "gpay": packageName = "com.google.android.apps.nbu.paisa.user"; break;
-      case "paytm": packageName = "net.one97.paytm"; break;
+  // Handle Pay Button
+  payButton.addEventListener("click", () => {
+    const app = document.querySelector('input[name="upiApp"]:checked').value;
+    const utr = utrInput.value.trim() || "-";
+    const date = new Date().toLocaleString();
+
+    let pkg = "";
+    switch (app) {
+      case "phonepe": pkg = "com.phonepe.app"; break;
+      case "gpay": pkg = "com.google.android.apps.nbu.paisa.user"; break;
+      case "paytm": pkg = "net.one97.paytm"; break;
     }
+
+    // Save to transactions
+    db.ref("transactions").push({
+      amount,
+      app,
+      date,
+      status: "pending",
+      utr
+    });
 
     const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const dateTime = new Date().toLocaleString();
-
-    db.ref("transactions").push({
-      amount,
-      upi: selectedApp,
-      date,
-      status: "pending",
-      utr: utr || "-"
-    });
 
     if (isMobile) {
-      const intentURL = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${packageName};end`;
-      window.location.href = intentURL;
-      setTimeout(() => {
-        showToast("If app didn't open, try scanning the QR code.");
-      }, 3000);
+      const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
+      window.location.href = intent;
+
+      setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
     } else {
-      showToast("Use a mobile device to open UPI apps directly.");
+      showToast("Please use a mobile device to make payment.");
     }
   });
 
+  // Monitor Payment Status
   loader.style.display = "inline-block";
   db.ref("paymentStatus").on("value", (snap) => {
     const status = snap.val();
     if (status === "success") {
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
-      showToast("Payment received successfully!");
+
+      // Send Email Notification
+      emailjs.init("nOjIf5EIBm9sEtevk"); // Replace with your EmailJS user ID
+      emailjs.send("service_c8leeap", "template_fd2fm3r", {
+        to_name: "MODX",
+        amount,
+        date: new Date().toLocaleString()
+      }).then(() => {
+        console.log("Email sent");
+      });
+
+      showToast("Payment successful!");
+      setTimeout(() => window.location.href = "/success.html", 2000);
     } else if (status === "failed") {
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
