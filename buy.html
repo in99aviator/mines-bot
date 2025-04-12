@@ -160,7 +160,7 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  onAuthStateChanged(auth, (user) => {
+  auth.onAuthStateChanged(function(user) {
     if (user) {
       const uid = user.uid;
       const userRef = ref(db, "users/" + uid);
