@@ -28,12 +28,33 @@
 
     <div class="grid" id="grid"></div>
 
+    <!-- Spinner -->
     <div class="spinner-wrapper">
-      <label for="mineCount">Choose Mines (1-20):</label>
-      <select id="mineCount" class="custom-spinner" onchange="generateStars()">
-        ${[...Array(20).keys()].map(i => `<option value="${i+1}">${i+1}💣</option>`).join('')}
-      </select>
-    </div>
+  <label for="mineCount">Choose Mines (1-20):</label>
+  <select id="mineCount" class="custom-spinner" onchange="generateStars()">
+    <option value="1">1💣</option>
+    <option value="2">2💣</option>
+    <option value="3">3💣</option>
+    <option value="4">4💣</option>
+    <option value="5">5💣</option>
+    <option value="6">6💣</option>
+    <option value="7">7💣</option>
+    <option value="8">8💣</option>
+    <option value="9">9💣</option>
+    <option value="10">10💣</option>
+    <option value="11">11💣</option>
+    <option value="12">12💣</option>
+    <option value="13">13💣</option>
+    <option value="14">14💣</option>
+    <option value="15">15💣</option>
+    <option value="16">16💣</option>
+    <option value="17">17💣</option>
+    <option value="18">18💣</option>
+    <option value="19">19💣</option>
+    <option value="20">20💣</option>
+  </select>
+      
+</div>
 
     <div class="buttons">
       <button onclick="generateStars()">Get Signal</button>
@@ -79,43 +100,73 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    const winnerNames = ["Ravi", "Anjali", "Pooja", "Amit", "Ramesh", "Kiran", "Neha", "Manoj", "Swati", "Sunil"];
-    const scrollingText = document.getElementById("scrollingText");
+    const winnerNames = [
+  "Ravi", "Anjali", "Pooja", "Amit", "Ramesh", "Kiran", "Neha", "Manoj", "Swati", "Sunil",
+  "Priya", "Vikas", "Suman", "Deepak", "Shweta", "Vivek", "Sneha", "Rahul", "Asha", "Alok",
+  "Gaurav", "Meena", "Harsh", "Divya", "Nikhil", "Rekha", "Kapil", "Kavita", "Aman", "Simran",
+  "Nitin", "Bhavna", "Abhishek", "Naina", "Varun", "Komal", "Saurabh", "Ruchi", "Yogesh", "Namrata",
+  "Tanmay", "Pallavi", "Rajesh", "Sapna", "Mohit", "Payal", "Vinod", "Khushi", "Tushar", "Nisha",
+  "Ankit", "Kirti", "Hemant", "Isha", "Jatin", "Preeti", "Sachin", "Kajal", "Lokesh", "Tina",
+  "Sharad", "Monika", "Dev", "Aarti", "Sandeep", "Neelam", "Rohan", "Ritika", "Anshul", "Lavanya",
+  "Mayank", "Jyoti", "Aditya", "Poonam", "Ujjwal", "Megha", "Karan", "Anu", "Parth", "Geeta",
+  "Akash", "Tanu", "Rajat", "Lata", "Prateek", "Muskan", "Ashish", "Vidya", "Lakshay", "Ira",
+  "Tarun", "Kriti", "Deepanshu", "Juhi", "Naresh", "Surbhi", "Sagar", "Chitra", "Rajiv", "Disha",
+  "Ayush", "Shilpa", "Vishal", "Radhika", "Sujit", "Anika", "Hemlata", "Ravina", "Devansh", "Snehal",
+  "Arvind", "Neetu", "Darshan", "Karishma", "Bhavesh", "Asmita", "Farhan", "Sana", "Imran", "Zaara",
+  "Irfan", "Afreen", "Faizan", "Ayesha", "Sameer", "Saniya", "Rehan", "Zoya", "Wasim", "Nazma",
+  "Owais", "Lubna", "Aftab", "Shaista", "Arman", "Alina", "Saif", "Nusrat", "Firoz", "Shabana",
+  "Junaid", "Tabassum", "Aslam", "Sobia", "Kabir", "Rubeena", "Tariq", "Yasmin", "Adil", "Heena",
+  "Aadil", "Sadia", "Arbaz", "Madiha", "Nabeel", "Rida", "Azhar", "Humaira", "Salman", "Sakina",
+  "Shahrukh", "Iqra", "Amjad", "Aqsa", "Reyaz", "Zainab", "Majid", "Mehr", "Zubair", "Sahar",
+  "Tanveer", "Anabia", "Sohail", "Amira", "Hasan", "Bushra", "Bilal", "Shiza", "Noman", "Noor",
+  "Shadab", "Aleena", "Rauf", "Fatima", "Qasim", "Hafsa", "Yasir", "Laiba", "Talib", "Hina",
+  "Wasim", "Mehar", "Mubin", "Ifra", "Abrar", "Misbah", "Zeeshan", "Areeba", "Nasir", "Hoorain"
+];
+const scrollingText = document.getElementById("scrollingText");
 
-    function getRandomAmount() {
-      return (Math.floor(Math.random() * 10900) + 100) + ".00";
-    }
+function getRandomAmount() {
+  return (Math.floor(Math.random() * 10900) + 100) + ".00";
+}
 
     function generateHorizontalLeaderboard() {
-      let winnersText = "";
-      for (let i = 0; i < 30; i++) {
-        const name = winnerNames[Math.floor(Math.random() * winnerNames.length)];
-        const amount = getRandomAmount();
-        winnersText += `${name} won ₹${amount} &nbsp;&nbsp;&nbsp; `;
-      }
-      scrollingText.innerHTML = winnersText;
-    }
+  let winnersText = "";
+  for (let i = 0; i < 30; i++) {
+    const name = winnerNames[Math.floor(Math.random() * winnerNames.length)];
+    const amount = getRandomAmount();
+    winnersText += `${name} won ₹${amount} &nbsp;&nbsp;&nbsp; `;
+  }
+  scrollingText.innerHTML = winnersText;
+}
 
     function generateStars() {
-      const grid = document.getElementById("grid");
-      const mineCountElement = document.getElementById("mineCount");
-      const safeCount = mineCountElement ? parseInt(mineCountElement.value) : 1;
+  const grid = document.getElementById("grid");
+  const mineCountElement = document.getElementById("mineCount");
+  const safeCount = mineCountElement ? parseInt(mineCountElement.value) : 1;
 
-      grid.innerHTML = "";
+  grid.innerHTML = "";
 
-      const totalCells = 25;
-      const indices = Array.from({ length: totalCells }, (_, i) => i);
-      const safeIndices = indices.sort(() => 0.5 - Math.random()).slice(0, safeCount);
+  const totalCells = 25;
 
-      for (let i = 0; i < totalCells; i++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        if (!safeIndices.includes(i)) {
-          cell.classList.add("star");
-        }
-        grid.appendChild(cell);
-      }
+  // Generate 25 cell indices: 0 to 24
+  const indices = Array.from({ length: totalCells }, (_, i) => i);
+
+  // Shuffle and pick `safeCount` indices to be empty
+  const safeIndices = indices
+    .sort(() => 0.5 - Math.random())
+    .slice(0, safeCount);
+
+  for (let i = 0; i < totalCells; i++) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+
+    // Add star only if not in safe indices
+    if (!safeIndices.includes(i)) {
+      cell.classList.add("star");
     }
+
+    grid.appendChild(cell);
+  }
+}
 
     function updateStatus() {
       const status = document.getElementById("status");
