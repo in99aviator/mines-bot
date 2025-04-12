@@ -66,43 +66,42 @@
     <div class="loader"></div>
   </div>
 
-  <script src="firebase-config.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-    
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+ <script type="module">
+  import { app } from './firebase-config.js';
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            const uid = user.uid;
-            const userRef = ref(db, 'users/' + uid);
-            get(userRef).then(snapshot => {
-              if (snapshot.exists()) {
-                const status = snapshot.val().status;
-                if (status === "active") {
-                  window.location.href = "index.html";
-                } else if (status === "blocked") {
-                  window.location.href = "blocked.html";
-                } else {
-                  window.location.href = "buy.html";
-                }
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const uid = user.uid;
+          const userRef = ref(db, 'users/' + uid);
+          get(userRef).then(snapshot => {
+            if (snapshot.exists()) {
+              const status = snapshot.val().status;
+              if (status === "active") {
+                window.location.href = "index.html";
+              } else if (status === "blocked") {
+                window.location.href = "blocked.html";
               } else {
-                window.location.href = "auth.html";
+                window.location.href = "buy.html";
               }
-            }).catch(() => {
+            } else {
               window.location.href = "auth.html";
-            });
-          } else {
+            }
+          }).catch(() => {
             window.location.href = "auth.html";
-          }
-        });
-      }, 3000);
-    });
-  </script>
+          });
+        } else {
+          window.location.href = "auth.html";
+        }
+      });
+    }, 3000);
+  });
+</script>
 </body>
 </html>
