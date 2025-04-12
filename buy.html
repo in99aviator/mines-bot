@@ -146,8 +146,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+  import { getDatabase, ref, get, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
@@ -157,30 +156,7 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
   const db = getDatabase(app);
-
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
-      const uid = user.uid;
-      const userRef = ref(db, "users/" + uid);
-      get(userRef).then(snapshot => {
-        if (snapshot.exists()) {
-          const status = snapshot.val().status;
-          if (status === "active") {
-            // Do nothing, stay on page
-          } else if (status === "blocked") {
-            window.location.href = "blocked.html";
-          } else {
-            window.location.href = "buy.html";
-          }
-        }
-      });
-    } else {
-      // Not logged in
-      window.location.href = "auth.html";
-    }
-  });
 
   // Elements
   const amountElem = document.getElementById("amount");
@@ -193,14 +169,12 @@
 
   let upiId = '', amount = '';
 
-  // Show toast
   function showToast(msg) {
     toast.innerText = msg;
     toast.style.display = "block";
     setTimeout(() => toast.style.display = "none", 3000);
   }
 
-  // Timer
   let timeInSeconds = 900;
   function updateTimer() {
     const m = Math.floor(timeInSeconds / 60);
@@ -213,17 +187,37 @@
   }
   updateTimer();
 
-  // Fetch Realtime UPI & Amount
-  db.ref("settings").on("value", (snapshot) => {
-    const data = snapshot.val();
-    upiId = data.upi;
-    amount = data.amount;
+  get(ref(db, "settings")).then((snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      upiId = data.upi;
+      amount = data.amount;
+      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
+      payButton.innerText = `PAY ₹${amount}`;
+      amountElem.innerText = `₹${amount}`;
+    } else {
+      fallback();
+    }
+  }).catch((error) => {
+    fallback();
+  });
+
+  function fallback() {
+    upiId = "modx@ybl";
+    amount = "10";
     amountElem.innerText = `₹${amount}`;
     qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
     payButton.innerText = `PAY ₹${amount}`;
-  });
+    showToast("Firebase config not found. Using fallback QR.");
 
-  // Handle Pay Button
+    // Log fallback usage
+    push(ref(db, "fallbackLogs"), {
+      date: new Date().toLocaleString(),
+      reason: "Missing settings data for QR",
+      userAgent: navigator.userAgent
+    });
+  }
+
   payButton.addEventListener("click", () => {
     const app = document.querySelector('input[name="upiApp"]:checked').value;
     const utr = utrInput.value.trim() || "-";
@@ -236,8 +230,7 @@
       case "paytm": pkg = "net.one97.paytm"; break;
     }
 
-    // Save to transactions
-    db.ref("transactions").push({
+    push(ref(db, "transactions"), {
       amount,
       app,
       date,
@@ -251,31 +244,24 @@
     if (isMobile) {
       const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
       window.location.href = intent;
-
       setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
     } else {
       showToast("Please use a mobile device to make payment.");
     }
   });
 
-  // Monitor Payment Status
   loader.style.display = "inline-block";
-  db.ref("paymentStatus").on("value", (snap) => {
+  onValue(ref(db, "paymentStatus"), (snap) => {
     const status = snap.val();
     if (status === "success") {
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
-
-      // Send Email Notification
-      emailjs.init("nOjIf5EIBm9sEtevk"); // Replace with your EmailJS user ID
+      emailjs.init("nOjIf5EIBm9sEtevk");
       emailjs.send("service_c8leeap", "template_fd2fm3r", {
         to_name: "MODX",
         amount,
         date: new Date().toLocaleString()
-      }).then(() => {
-        console.log("Email sent");
       });
-
       showToast("Payment successful!");
       setTimeout(() => window.location.href = "/success.html", 2000);
     } else if (status === "failed") {
@@ -285,6 +271,5 @@
     }
   });
 </script>
-
 </body>
 </html>
