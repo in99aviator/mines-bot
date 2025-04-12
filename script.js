@@ -113,16 +113,16 @@ function generateHorizontalLeaderboard() {
         }
       } else {
         loadingOverlay.innerText = "Redirecting to login...";
-        setTimeout(() => window.location.href = "login.html", 1000);
+        setTimeout(() => window.location.href = "splash.html", 1000);
       }
     }).catch(() => {
       loadingOverlay.innerText = "Something went wrong. Redirecting...";
-      setTimeout(() => window.location.href = "login.html", 1000);
+      setTimeout(() => window.location.href = "splash.html", 1000);
     });
 
   } else {
     loadingOverlay.innerText = "Checking session...";
-    setTimeout(() => window.location.href = "login.html", 1000);
+    setTimeout(() => window.location.href = "splash.html", 1000);
   }
 });
 
