@@ -56,9 +56,25 @@
       font-weight: bold;
     }
     .qr {
-      margin: 20px 0;
+      margin-top: 10px;
       width: 180px;
       height: 180px;
+    }
+    .qr-card {
+      border: 2px solid #ccc;
+      border-radius: 0;
+      padding: 10px;
+      width: 200px;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin: 20px 0;
+    }
+    .qr-card-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
     }
     .upi-apps {
       width: 100%;
@@ -92,18 +108,7 @@
       cursor: pointer;
     }
     .loader {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #4CAF50;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
       display: none;
-      margin-left: 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
     .toast {
       position: fixed;
@@ -129,7 +134,11 @@
     <span class="amount" id="amount">₹--</span>
   </div>
 
-  <img id="qrImage" class="qr" src="" alt="QR Code">
+  <div class="qr-card">
+    <div class="qr-card-title">Scan any UPI App</div>
+    <img id="qrImage" class="qr" src="" alt="QR Code">
+  </div>
+
   <div class="status">Status: <span id="timer">15:00</span> <span id="loader" class="loader"></span></div>
 
   <div class="upi-apps">
@@ -210,7 +219,6 @@
     payButton.innerText = `PAY ₹${amount}`;
     showToast("Firebase config not found. Using fallback QR.");
 
-    // Log fallback usage
     push(ref(db, "fallbackLogs"), {
       date: new Date().toLocaleString(),
       reason: "Missing settings data for QR",
@@ -250,7 +258,8 @@
     }
   });
 
-  loader.style.display = "inline-block";
+  loader.style.display = "none";
+
   onValue(ref(db, "paymentStatus"), (snap) => {
     const status = snap.val();
     if (status === "success") {
