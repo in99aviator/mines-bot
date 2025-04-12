@@ -203,8 +203,8 @@
   });
 
   function fallback() {
-    upiId = "modx@ybl";
-    amount = "10";
+    upiId = "in99softdev78@upi";
+    amount = "299";
     amountElem.innerText = `₹${amount}`;
     qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
     payButton.innerText = `PAY ₹${amount}`;
