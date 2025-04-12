@@ -36,33 +36,6 @@
     "Wasim", "Mehar", "Mubin", "Ifra", "Abrar", "Misbah", "Zeeshan", "Areeba", "Nasir", "Hoorain"
   ];
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const uid = user.uid;
-      const userRef = ref(db, "users/" + uid);
-      get(userRef).then(snapshot => {
-        if (snapshot.exists()) {
-          const status = snapshot.val().status;
-          if (status === "active") {
-            generateStars();
-            generateHorizontalLeaderboard();
-            updateStatus();
-          } else if (status === "blocked") {
-            window.location.href = "blocked.html";
-          } else {
-            window.location.href = "buy.html";
-          }
-        } else {
-          window.location.href = "login.html";
-        }
-      }).catch(() => {
-        window.location.href = "login.html";
-      });
-    } else {
-      window.location.href = "login.html";
-    }
-  });
-
   function getRandomAmount() {
     return (Math.floor(Math.random() * 10900) + 100) + ".00";
   }
@@ -104,6 +77,34 @@
       status.innerText = "Bot Status is: Connected to Server ✅";
     }
   }
+
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const uid = user.uid;
+      const userRef = ref(db, "users/" + uid);
+      get(userRef).then(snapshot => {
+        if (snapshot.exists()) {
+          const status = snapshot.val().status;
+          if (status === "active") {
+            generateStars();
+            generateHorizontalLeaderboard();
+            updateStatus();
+          } else if (status === "blocked") {
+            window.location.href = "blocked.html";
+          } else {
+            window.location.href = "buy.html";
+          }
+        } else {
+          window.location.href = "splash.html";
+        }
+      }).catch(() => {
+        window.location.href = "splash.html";
+      });
+    } else {
+      window.location.href = "splash.html";
+    }
+  });
 
   function openDialog() {
     document.getElementById("dialogOverlay").style.display = "flex";
