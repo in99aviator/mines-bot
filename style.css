@@ -18,15 +18,17 @@ body {
 }
 
 .toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #1f1f1f;
-  padding: 12px 20px;
-  color: white;
-  position: sticky;
+  position: fixed;
   top: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #1e3a8a, #007fff);
+  color: white;
+  text-align: center;
+  padding: 14px 0;
+  font-size: 18px;
+  font-weight: bold;
   z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 128, 255, 0.6);
 }
 
 .profile-pic {
