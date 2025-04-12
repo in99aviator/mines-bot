@@ -178,16 +178,14 @@ button:hover {
 
   <!-- UTR Section -->
   <div style="width: 100%; margin-top: 10px; text-align: left;">Enter UTR Number</div>
-  <input type="text" id="utr" placeholder="Enter UTR (optional)">
+  <input type="text" id="utr" placeholder="Enter UTR Number">
   <button id="confirmPaymentBtn" style="background-color: #2196F3; margin-bottom: 15px;">Confirm Payment</button>
 
   <!-- Method 2 -->
   <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin-bottom: 3px;">
-    2. Method Pay any UPI App easy
+    2. Method Pay any UPI App Faster Confirmation
   </div>
-  <div style="width: 100%; font-size: 13px; color: #666; margin-bottom: 10px;">
-    Method 2 is faster and easy
-  </div>
+  
 
   <div class="upi-apps">
     <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
@@ -277,11 +275,6 @@ button:hover {
   confirmPaymentBtn.addEventListener("click", () => {
   const utr = utrInput.value.trim();
   const selectedApp = document.querySelector('input[name="upiApp"]:checked')?.value;
-
-  if (!utr || !selectedApp) {
-    alert("Please enter UTR and select a UPI App.");
-    return;
-  }
 
   const txn = {
     utr,
