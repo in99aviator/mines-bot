@@ -91,13 +91,12 @@
  
 
   <script type="module">
-    window.onload = () => {
-        import { app } from './firebase-config.js';
+  import { app } from './firebase-config.js';
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+  const db = firebase.database();
+  const auth = firebase.auth();
 
   const winnerNames = [
     "Ravi", "Anjali", "Pooja", "Amit", "Ramesh", "Kiran", "Neha", "Manoj", "Swati", "Sunil",
@@ -176,7 +175,8 @@ function generateHorizontalLeaderboard() {
   }
 
 
-  onAuthStateChanged(auth, (user) => {
+  // -------------------- Auth Guard --------------------
+firebase.auth().onAuthStateChanged(function(user) {
   const loadingOverlay = document.getElementById("loadingOverlay");
   if (user) {
     loadingOverlay.style.display = "flex"; // Show loader
