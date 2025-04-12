@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>UPI Payment</title>
+  <title>UPI Payment - MODX TEAM</title>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f1f1f1;
+      background: #f9f9f9;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -19,91 +21,105 @@
       background: #fff;
       padding: 20px;
       border-radius: 8px;
-      width: 300px;
+      width: 320px;
       text-align: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       position: relative;
     }
 
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 0;
-    flex-wrap: wrap;
-  }
-
-  .header img {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-  }
-
-  .title {
-    flex-grow: 1;
-    font-weight: bold;
-    font-size: 16px;
-    margin-left: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .amount {
-    font-size: 18px;
-    color: green;
-    font-weight: bold;
-    white-space: nowrap;
-    margin-left: auto;
-  }
-
-  @media (max-width: 400px) {
     .header {
-      flex-direction: column;
-      align-items: flex-start;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
     }
-    .title, .amount {
-      margin: 5px 0 0 0;
+
+    .header img {
+      width: 40px;
+      height: 40px;
     }
-  }
+
+    .title {
+      flex-grow: 1;
+      font-weight: bold;
+      font-size: 15px;
+      margin-left: 10px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .amount {
+      font-size: 18px;
+      color: green;
+      font-weight: bold;
+      white-space: nowrap;
+      margin-left: auto;
+    }
 
     .qr {
-      margin: 10px 0;
+      margin: 15px 0;
       width: 150px;
       height: 150px;
     }
-    .upi-apps { margin: 15px 0; text-align: left; }
-    .upi-apps label { display: block; margin: 5px 0; }
-    .status { font-size: 14px; margin-top: 10px; color: #333; }
-    .pay-options { font-size: 12px; margin-top: 10px; text-align: left; }
-    .powered { font-size: 12px; margin-top: 10px; color: gray; }
+
+    .upi-apps, .pay-options {
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    .upi-apps label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .status {
+      font-size: 14px;
+      color: #444;
+      margin: 10px 0;
+    }
+
+    .powered {
+      font-size: 12px;
+      color: #888;
+      margin-top: 10px;
+    }
+
     button {
       background: #4CAF50;
       color: white;
       border: none;
       padding: 10px 20px;
-      border-radius: 4px;
+      border-radius: 5px;
       margin-top: 10px;
       cursor: pointer;
     }
 
-    /* Loader animation */
     .loader {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #4CAF50;
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 24px;
+      height: 24px;
       animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-left: 5px;
-      vertical-align: middle;
+      display: none;
+      margin-left: 10px;
     }
 
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 400px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .title, .amount {
+        margin: 5px 0 0 0;
+      }
     }
   </style>
 </head>
@@ -111,14 +127,13 @@
 
 <div class="payment-box">
   <div class="header">
-  <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
-  <span class="title">MODX TEAM PRIVATE LIMITED</span>
-  <span class="amount" id="amount">₹--</span>
-</div>
+    <img src="https://img.icons8.com/color/48/000000/shopping-bag.png" alt="icon">
+    <span class="title">MODX TEAM PRIVATE LIMITED</span>
+    <span class="amount" id="amount">₹--</span>
+  </div>
 
   <div class="qr-section">
-    <h3>Show QR Code</h3>
-    <p>Scan with any UPI app</p>
+    <h3>Scan to Pay</h3>
     <img id="qrImage" class="qr" src="" alt="QR Code">
     <p class="status">Checking payment status… <span id="timer">15:00</span><span id="loader" class="loader"></span></p>
   </div>
@@ -131,26 +146,40 @@
   </div>
 
   <div class="pay-options">
-    <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> UPI ID - PhonePe, Gpay, Paytm & more</p>
-    <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-card-back-side.png"/> Card - Visa, Mastercard, Rupay</p>
-    <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-building.png"/> Net Banking - Choose your bank</p>
+    <p><img src="https://img.icons8.com/ios-filled/20/000000/qr-code.png"/> Scan any UPI App</p>
+    <p><img src="https://img.icons8.com/ios-filled/20/000000/bank-card-back-side.png"/> Card - Visa, Rupay, MasterCard</p>
   </div>
 
   <p class="powered">Powered by <b>PhonePe</b></p>
+
   <button id="payButton" type="button">PAY</button>
 </div>
 
 <script>
+  // ---- 1. Firebase Init ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
+    authDomain: "pg-data-ed1c2.firebaseapp.com",
+    databaseURL: "https://pg-data-ed1c2-default-rtdb.firebaseio.com",
+    projectId: "pg-data-ed1c2",
+    storageBucket: "pg-data-ed1c2.firebasestorage.app",
+    messagingSenderId: "884858492190",
+    appId: "1:884858492190:web:67b7606ff790064ef3250f",
+    measurementId: "G-J73RD8EH7W"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
+  // ---- 2. Elements and Vars ----
   const amountElem = document.getElementById("amount");
   const qrImage = document.getElementById("qrImage");
   const payButton = document.getElementById("payButton");
   const loader = document.getElementById("loader");
-
+  const timerElement = document.getElementById("timer");
   let upiId = '', amount = '';
 
-  // 1. Real-time QR and amount update
+  // ---- 3. Fetch QR + Amount Realtime ----
   db.ref("settings").on("value", (snapshot) => {
     const data = snapshot.val();
     upiId = data.upi;
@@ -161,9 +190,8 @@
     payButton.innerText = `PAY ₹${amount}`;
   });
 
-  // 2. Timer countdown
+  // ---- 4. Timer Countdown ----
   let timeInSeconds = 900;
-  const timerElement = document.getElementById('timer');
   function updateTimer() {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
@@ -175,40 +203,49 @@
   }
   updateTimer();
 
-  // 3. Payment Button + Deep Link + Device check
+  // ---- 5. Handle Pay Button ----
   payButton.addEventListener("click", () => {
     const selectedApp = document.querySelector('input[name="upiApp"]:checked').value;
-
     let packageName = "";
+
     switch (selectedApp) {
       case "phonepe": packageName = "com.phonepe.app"; break;
       case "gpay": packageName = "com.google.android.apps.nbu.paisa.user"; break;
       case "paytm": packageName = "net.one97.paytm"; break;
     }
 
-    const upiLink = `upi://pay?pa=${upiId}&pn=Papaya%20Coders&am=${amount}&cu=INR`;
+    const upiLink = `upi://pay?pa=${upiId}&pn=Papaya Coders&am=${amount}&cu=INR`;
+    const encoded = encodeURIComponent(upiLink);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-      const intentUrl = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${packageName};end`;
-      window.location.href = intentUrl;
+      const intentURL = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${packageName};end`;
+      window.location.href = intentURL;
 
       setTimeout(() => {
-        alert("If the UPI app didn't open, please try manually.");
+        alert("If the app didn't open, try scanning the QR code.");
       }, 4000);
     } else {
-      alert("Please scan the QR code using your UPI app on mobile.");
+      alert("Use a mobile device to open UPI apps directly.");
     }
   });
 
-  // 4. Payment Status Polling
+  // ---- 6. Payment Status Listener ----
+  loader.style.display = "inline-block";
+
   db.ref("paymentStatus").on("value", (snap) => {
-    if (snap.val() === "success") {
+    const status = snap.val();
+    if (status === "success") {
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
+      setTimeout(() => {
+        window.location.href = "/success.html";
+      }, 2000);
+    } else if (status === "failed") {
+      loader.style.display = "none";
+      document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
     }
   });
 </script>
-
 </body>
 </html>
