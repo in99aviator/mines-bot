@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>UPI Payment</title>
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -24,6 +22,7 @@
       width: 300px;
       text-align: center;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
     }
     .header img {
       width: 40px;
@@ -43,29 +42,11 @@
       width: 150px;
       height: 150px;
     }
-    .upi-apps {
-      margin: 15px 0;
-      text-align: left;
-    }
-    .upi-apps label {
-      display: block;
-      margin: 5px 0;
-    }
-    .status {
-      font-size: 14px;
-      margin-top: 10px;
-      color: #333;
-    }
-    .pay-options {
-      font-size: 12px;
-      margin-top: 10px;
-      text-align: left;
-    }
-    .powered {
-      font-size: 12px;
-      margin-top: 10px;
-      color: gray;
-    }
+    .upi-apps { margin: 15px 0; text-align: left; }
+    .upi-apps label { display: block; margin: 5px 0; }
+    .status { font-size: 14px; margin-top: 10px; color: #333; }
+    .pay-options { font-size: 12px; margin-top: 10px; text-align: left; }
+    .powered { font-size: 12px; margin-top: 10px; color: gray; }
     button {
       background: #4CAF50;
       color: white;
@@ -74,6 +55,24 @@
       border-radius: 4px;
       margin-top: 10px;
       cursor: pointer;
+    }
+
+    /* Loader animation */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4CAF50;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -90,7 +89,7 @@
     <h3>Show QR Code</h3>
     <p>Scan with any UPI app</p>
     <img id="qrImage" class="qr" src="" alt="QR Code">
-    <p class="status">Checking payment status… <span id="timer">15:00</span></p>
+    <p class="status">Checking payment status… <span id="timer">15:00</span><span id="loader" class="loader"></span></p>
   </div>
 
   <div class="upi-apps">
@@ -107,37 +106,33 @@
   </div>
 
   <p class="powered">Powered by <b>PhonePe</b></p>
-
   <button id="payButton" type="button">PAY</button>
 </div>
 
-  <script src="firebase-config.js"></script>
 <script>
-  
   const db = firebase.database();
 
-  let upiId = '';
-  let amount = '';
+  const amountElem = document.getElementById("amount");
+  const qrImage = document.getElementById("qrImage");
+  const payButton = document.getElementById("payButton");
+  const loader = document.getElementById("loader");
 
-  // Fetch UPI details from Firebase
-  db.ref("settings").once("value").then((snapshot) => {
+  let upiId = '', amount = '';
+
+  // 1. Real-time QR and amount update
+  db.ref("settings").on("value", (snapshot) => {
     const data = snapshot.val();
     upiId = data.upi;
     amount = data.amount;
 
-    // Update UI
-    document.getElementById("amount").innerText = `₹${amount}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${upiId}&pn=Papaya%20Coders&am=${amount}&cu=INR`;
-    document.getElementById("qrImage").src = qrUrl;
-
-    // Update pay button text
-    document.getElementById("payButton").innerText = `PAY ₹${amount}`;
+    amountElem.innerText = `₹${amount}`;
+    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${upiId}&pn=Papaya%20Coders&am=${amount}&cu=INR`;
+    payButton.innerText = `PAY ₹${amount}`;
   });
 
-  // Timer logic
+  // 2. Timer countdown
   let timeInSeconds = 900;
   const timerElement = document.getElementById('timer');
-
   function updateTimer() {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
@@ -149,25 +144,38 @@
   }
   updateTimer();
 
-  // Payment Intent logic
-  document.getElementById('payButton').addEventListener('click', () => {
+  // 3. Payment Button + Deep Link + Device check
+  payButton.addEventListener("click", () => {
     const selectedApp = document.querySelector('input[name="upiApp"]:checked').value;
 
     let packageName = "";
     switch (selectedApp) {
-      case "phonepe":
-        packageName = "com.phonepe.app";
-        break;
-      case "gpay":
-        packageName = "com.google.android.apps.nbu.paisa.user";
-        break;
-      case "paytm":
-        packageName = "net.one97.paytm";
-        break;
+      case "phonepe": packageName = "com.phonepe.app"; break;
+      case "gpay": packageName = "com.google.android.apps.nbu.paisa.user"; break;
+      case "paytm": packageName = "net.one97.paytm"; break;
     }
 
     const upiLink = `upi://pay?pa=${upiId}&pn=Papaya%20Coders&am=${amount}&cu=INR`;
-    window.location.href = `intent://${upiLink}#Intent;scheme=upi;package=${packageName};end`;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      const intentUrl = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${packageName};end`;
+      window.location.href = intentUrl;
+
+      setTimeout(() => {
+        alert("If the UPI app didn't open, please try manually.");
+      }, 4000);
+    } else {
+      alert("Please scan the QR code using your UPI app on mobile.");
+    }
+  });
+
+  // 4. Payment Status Polling
+  db.ref("paymentStatus").on("value", (snap) => {
+    if (snap.val() === "success") {
+      loader.style.display = "none";
+      document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
+    }
   });
 </script>
 
