@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
@@ -16,6 +16,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebas
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
+
+    const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+      alert("Logged out successfully!");
+      window.location.href = "splash.html"; // ya login.html
+    }).catch((error) => {
+      console.error("Logout error:", error);
+      alert("Something went wrong during logout.");
+    });
+  });
+}
 
      // Auth Guard
     onAuthStateChanged(auth, (user) => {
