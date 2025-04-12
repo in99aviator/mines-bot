@@ -18,32 +18,40 @@ body {
 }
 
 .toolbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: linear-gradient(90deg, #1e3a8a, #007fff);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #222;
   color: white;
-  text-align: center;
-  padding: 14px 0;
+  padding: 10px 15px;
   font-size: 18px;
-  font-weight: bold;
-  z-index: 1000;
-  box-shadow: 0 0 10px rgba(0, 128, 255, 0.6);
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#profilePic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  object-fit: cover;
 }
 
 .logout-btn {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  background-color: #e74c3c;
+  background-color: #ff4d4d;
   color: white;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 5px;
   cursor: pointer;
-  z-index: 9999;
+}
+
+.logout-btn:hover {
+  background-color: #ff1a1a;
 }
 
 .container {
