@@ -1,4 +1,3 @@
-<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
@@ -121,4 +120,3 @@
   function redirectToJoin() {
     window.open("https://t.me/soft99dev", "_blank");
   }
-</script>
