@@ -25,6 +25,7 @@ submitBtn.addEventListener("click", () => {
       .catch(err => showToast(err.message));
   } else {
     // Login
+// Login
 signInWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
     const uid = userCredential.user.uid;
@@ -35,13 +36,20 @@ signInWithEmailAndPassword(auth, email, password)
       .then((snapshot) => {
         if (snapshot.exists()) {
           const userData = snapshot.val();
-          if (userData.status === "active") {
+          const status = userData.status;
+
+          if (status === "active") {
             showToast("Login successful! Redirecting...");
             setTimeout(() => {
               window.location.href = "index.html";
             }, 1000);
+          } else if (status === "blocked") {
+            showToast("Your account is blocked!");
+            setTimeout(() => {
+              window.location.href = "blocked.html";
+            }, 1000);
           } else {
-            showToast("Login successful, but account not active!");
+            showToast("Your account is not active!");
             setTimeout(() => {
               window.location.href = "buy.html";
             }, 1000);
