@@ -233,8 +233,8 @@
 
     db.ref("transactions").push({
       amount,
-      upiApp: selectedApp,
-      dateTime,
+      upi: selectedApp,
+      date,
       status: "pending",
       utr: utr || "-"
     });
