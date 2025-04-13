@@ -485,6 +485,7 @@
 
         push(ref(db, "transactions"), data)
           .then(() => {
+            setTimeout(() => window.location.href = "success.html", 1000);
             showToast("Payment submitted for verification");
             document.getElementById("validUtr").value = "";
           })
