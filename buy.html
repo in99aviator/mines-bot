@@ -13,170 +13,167 @@
     /* ... [same CSS as before] ... */
 
     * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-body {
-  font-family: Arial, sans-serif;
-  background: #f0f2f5;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
     .top-toast {
-  position: fixed;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #323232;
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  z-index: 9999;
-  transition: top 0.4s ease;
-}
-.top-toast.show {
-  top: 20px;
-}
-    
-.payment-box {
-  width: 100%;
-  max-width: 400px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.header {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 10px;
-}
-.header img {
-  width: 40px;
-  height: 40px;
-}
-.title {
-  flex-grow: 1;
-  margin-left: 10px;
-  font-weight: bold;
-  font-size: 15px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.amount {
-  font-size: 18px;
-  color: green;
-  font-weight: bold;
-}
-.qr {
-  margin-top: 10px;
-  width: 180px;
-  height: 180px;
-}
-.qr-card {
-  border: 2px solid #ccc;
-  border-radius: 0;
-  padding: 10px;
-  width: 200px;
-  text-align: center;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  margin: 10px 0 20px;
-}
-.qr-card-title {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #333;
-}
-.status {
-  font-size: 14px;
-  color: #444;
-  margin: 10px 0;
-  width: 100%;
-  text-align: center;
-}
-.upi-apps {
-  width: 100%;
-  margin-bottom: 10px;
-}
-.upi-apps label {
-  display: block;
-  margin: 5px 0;
-  font-size: 14px;
-}
-input[type="text"] {
-  width: 100%;
-  padding: 8px;
-  font-size: 14px;
-  margin: 5px 0 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-button {
-  background: #4CAF50;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  width: 100%;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 5px;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-button:hover {
-  background: #45a049;
-  transform: scale(1.02);
-}
-#confirmPaymentBtn {
-  background: #2196F3;
-}
-#confirmPaymentBtn:hover {
-  background: #1976D2;
-  transform: scale(1.02);
-}
-.loader {
-  display: none;
-}
-.toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 6px;
-  display: none;
-  z-index: 999;
-  font-size: 14px;
-  animation: fadeInOut 3s ease-in-out;
-}
-@keyframes fadeInOut {
-  0% { opacity: 0; bottom: 20px; }
-  10% { opacity: 1; bottom: 30px; }
-  90% { opacity: 1; bottom: 30px; }
-  100% { opacity: 0; bottom: 20px; }
-}
-    
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #323232;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transition: top 0.4s ease;
+    }
+    .top-toast.show {
+      top: 20px;
+    }
+
+    .payment-box {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .header img {
+      width: 40px;
+      height: 40px;
+    }
+    .title {
+      flex-grow: 1;
+      margin-left: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .amount {
+      font-size: 18px;
+      color: green;
+      font-weight: bold;
+    }
+    .qr {
+      margin-top: 10px;
+      width: 180px;
+      height: 180px;
+    }
+    .qr-card {
+      border: 2px solid #ccc;
+      border-radius: 0;
+      padding: 10px;
+      width: 200px;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin: 10px 0 20px;
+    }
+    .qr-card-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    .status {
+      font-size: 14px;
+      color: #444;
+      margin: 10px 0;
+      width: 100%;
+      text-align: center;
+    }
+    .upi-apps {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .upi-apps label {
+      display: block;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      margin: 5px 0 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background: #4CAF50;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 5px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      background: #45a049;
+      transform: scale(1.02);
+    }
+    #confirmPaymentBtn {
+      background: #2196F3;
+    }
+    #confirmPaymentBtn:hover {
+      background: #1976D2;
+      transform: scale(1.02);
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      display: none;
+      z-index: 999;
+      font-size: 14px;
+      animation: fadeInOut 3s ease-in-out;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; bottom: 20px; }
+      10% { opacity: 1; bottom: 30px; }
+      90% { opacity: 1; bottom: 30px; }
+      100% { opacity: 0; bottom: 20px; }
+    }
+
   </style>
 </head>
 <body>
 <div id="topToast" class="top-toast"></div>
-  
+
 <div class="payment-box">
   <div class="header">
     <img src="https://img.icons8.com/color/48/shopping-bag.png" alt="icon">
@@ -195,7 +192,6 @@ button:hover {
 
   <div class="status">
     Checking Payment Status in: <span id="timer" style="color: green;">15:00</span>
-    <span id="loader" class="loader"></span>
   </div>
 
   <div style="width: 100%; margin-top: 10px; text-align: left;">Enter UTR Number</div>
@@ -242,7 +238,6 @@ button:hover {
   const qrImage = document.getElementById("qrImage");
   const timerElement = document.getElementById("timer");
   const payButton = document.getElementById("payButton");
-  const loader = document.getElementById("loader");
   const utrInput = document.getElementById("utrInput");
   const payBtn = document.getElementById("confirmPaymentBtn");
   const utrMessage = document.getElementById("utrMessage");
@@ -292,7 +287,6 @@ button:hover {
   }
 
   updateTimer();
-  loader.style.display = "block";
 
   get(ref(db, "settings")).then((snapshot) => {
     if (snapshot.exists()) {
@@ -312,13 +306,10 @@ button:hover {
     fallback();
   });
 
-  qrImage.onload = () => {
-    loader.style.display = "none";
-  };
+  qrImage.onload = () => {};
 
   qrImage.onerror = () => {
     showTopToast("QR load failed. Try again.", "#f44336");
-    loader.style.display = "none";
   };
 
   function fallback() {
@@ -399,30 +390,6 @@ button:hover {
       showTopToast("If app didn’t open, try scanning the QR.", "#2196F3");
     } else {
       showTopToast("Please use a mobile device to make payment.", "#ff9800");
-    }
-  });
-
-  onValue(ref(db, "paymentStatus"), (snap) => {
-    const status = snap.val();
-    if (status === "success") {
-      clearTimeout(timerId);
-      loader.style.display = "none";
-      document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
-
-      emailjs.init("nOjIf5EIBm9sEtevk");
-      emailjs.send("service_c8leeap", "template_fd2fm3r", {
-        to_name: "MODX",
-        amount,
-        date: new Date().toLocaleString()
-      });
-
-      showToast("Payment successful!");
-      setTimeout(() => window.location.href = "/success.html", 2000);
-    } else if (status === "failed") {
-      clearTimeout(timerId);
-      loader.style.display = "none";
-      document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
-      showToast("Payment failed.");
     }
   });
 </script>
