@@ -153,7 +153,7 @@
   <input type="text" id="validUtr" placeholder="Valid UTR Number">
   <button id="confirmPaymentBtn">Confirm Payment</button>
   
-  <h4 style="width:100%; text-align:left; margin-bottom:10px; margin-top:10px;">2. Method - Pay using UPI App faster confirmation.</h4>
+  <h4 style="width:100%; text-align:left; margin-bottom:10px; margin-top:10px;">2. Method - Pay using UPI App faster ✅</h4>
   <div class="upi-apps">
     <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
     <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
@@ -248,7 +248,6 @@ document.getElementById("confirmPaymentBtn").addEventListener("click", () => {
   }
 
   const date = new Date().toLocaleString();
-  const amountValue = amount || "0";
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -256,20 +255,19 @@ document.getElementById("confirmPaymentBtn").addEventListener("click", () => {
       const data = {
         uid,
         utr,
-        amount: amountValue,
+        amount: amount,
         app: "UPI",
         date,
         status: "pending"
       };
 
-      const refPath = `confirmedUTRs/${uid}_${Date.now()}`;
-      set(ref(db, refPath), data)
+      push(ref(db, "transactions"), data)
         .then(() => {
-          showToast("UTR Confirmed & Saved!");
+          showToast("Transaction submited to confirmation");
         })
         .catch((err) => {
           console.error("Error saving UTR:", err);
-          showToast("Failed to save. Try again.");
+          showToast("Failed to transaction submit. Try again.");
         });
     } else {
       showToast("User not logged in");
