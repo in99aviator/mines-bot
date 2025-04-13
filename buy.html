@@ -238,8 +238,7 @@ button:hover {
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-   window.addEventListener("load", () => {
-    setTimeout(() => {
+   
       onAuthStateChanged(auth, (user) => {
         if (user) {
           const uid = user.uid;
@@ -264,8 +263,6 @@ button:hover {
           window.location.href = "auth.html";
         }
       });
-    }, 3000);
-  });
 
   const amountElem = document.getElementById("amount");
   const qrImage = document.getElementById("qrImage");
