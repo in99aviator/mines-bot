@@ -216,7 +216,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getDatabase, ref, get, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+  import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
   const firebaseConfig = {
@@ -279,7 +279,7 @@
   function updateTimer() {
     const m = Math.floor(timeInSeconds / 60);
     const s = timeInSeconds % 60;
-    timerElement.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    timerElement.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     if (timeInSeconds > 0) {
       timeInSeconds--;
       timerId = setTimeout(updateTimer, 1000);
@@ -288,35 +288,10 @@
 
   updateTimer();
 
-  get(ref(db, "settings")).then((snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      upiId = data.upi;
-      amount = data.amount;
-
-      const upiData = encodeURIComponent(`upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`);
-      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${upiData}`;
-      payButton.innerText = `PAY ₹${amount}`;
-      amountElem.innerText = `₹${amount}`;
-    } else {
-      fallback();
-    }
-  }).catch((error) => {
-    console.error("Error fetching settings:", error);
-    fallback();
-  });
-
-  qrImage.onload = () => {};
-
-  qrImage.onerror = () => {
-    showTopToast("QR load failed. Try again.", "#f44336");
-  };
-
-  function fallback() {
+  function fallback(user) {
     upiId = "in99softdev78@upi";
     amount = "299";
     amountElem.innerText = `₹${amount}`;
-
     const fallbackUpi = encodeURIComponent(`upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`);
     qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${fallbackUpi}`;
     payButton.innerText = `PAY ₹${amount}`;
@@ -324,73 +299,116 @@
     push(ref(db, "fallbackLogs"), {
       date: new Date().toLocaleString(),
       reason: "Missing settings data for QR",
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
+      uid: user?.uid || "unknown"
     });
   }
 
-  payBtn.addEventListener("click", () => {
-    const user = auth.currentUser;
+  onAuthStateChanged(auth, (user) => {
     if (!user) {
-      showTopToast("User not logged in!", "#f44336");
+      window.location.href = "/login.html";
       return;
     }
 
-    const uid = user.uid;
-    const utr = utrInput.value.trim();
+    get(ref(db, `users/${user.uid}`)).then(snap => {
+      const data = snap.val();
+      if (!data || data.status !== "active") {
+        alert("Your account is inactive or blocked.");
+        window.location.href = "/login.html";
+        return;
+      }
 
-    if (!/^\d{12}$/.test(utr)) {
-      showTopToast("Invalid UTR. Must be 12 digits.", "#ff9800");
-      return;
-    }
+      // User is active — proceed
+      get(ref(db, "settings")).then((snapshot) => {
+        if (snapshot.exists()) {
+          const s = snapshot.val();
+          upiId = s.upi;
+          amount = s.amount;
 
-    const txn = {
-      uid,
-      utr,
-      app: "UPI",
-      amount,
-      upi: upiId,
-      status: "Pending",
-      date: new Date().toLocaleString()
-    };
-
-    push(ref(db, "transactions"), txn)
-      .then(() => {
-        showTopToast("Transaction submitted for confirmation", "#4CAF50");
-        utrInput.value = "";
-        utrMessage.textContent = "";
-        payBtn.disabled = true;
-      })
-      .catch((error) => {
-        console.error("Error saving transaction:", error);
-        showTopToast("Transaction confirmation error!", "#f44336");
+          const upiData = encodeURIComponent(`upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`);
+          qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${upiData}`;
+          payButton.innerText = `PAY ₹${amount}`;
+          amountElem.innerText = `₹${amount}`;
+        } else {
+          fallback(user);
+        }
+      }).catch((error) => {
+        console.error("Error fetching settings:", error);
+        fallback(user);
       });
-  });
 
-  payButton.addEventListener("click", () => {
-    const appRadio = document.querySelector('input[name="upiApp"]:checked');
-    if (!appRadio) {
-      showTopToast("Select a UPI app before proceeding!", "#ff9800");
-      return;
-    }
+      payBtn.addEventListener("click", () => {
+        const utr = utrInput.value.trim();
+        if (!/^\d{12}$/.test(utr)) {
+          showTopToast("Invalid UTR. Must be 12 digits.", "#ff9800");
+          return;
+        }
 
-    const app = appRadio.value;
-    let pkg = "";
-    switch (app) {
-      case "phonepe": pkg = "com.phonepe.app"; break;
-      case "gpay": pkg = "com.google.android.apps.nbu.paisa.user"; break;
-      case "paytm": pkg = "net.one97.paytm"; break;
-    }
+        const txn = {
+          uid: user.uid,
+          utr,
+          app: "UPI",
+          amount,
+          upi: upiId,
+          status: "Pending",
+          date: new Date().toLocaleString()
+        };
 
-    const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        get(ref(db, "transactions")).then(snapshot => {
+          const data = snapshot.val();
+          const exists = data && Object.values(data).some(t => t.utr === utr);
+          if (exists) {
+            showTopToast("UTR already submitted.", "#f44336");
+            return;
+          }
 
-    if (isMobile) {
-      const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
-      window.location.href = intent;
-      showTopToast("If app didn’t open, try scanning the QR.", "#2196F3");
-    } else {
-      showTopToast("Please use a mobile device to make payment.", "#ff9800");
-    }
+          payBtn.disabled = true;
+          payBtn.innerText = "Submitting...";
+
+          push(ref(db, "transactions"), txn)
+            .then(() => {
+              showTopToast("Transaction submitted for confirmation", "#4CAF50");
+              utrInput.value = "";
+              utrMessage.textContent = "";
+              payBtn.innerText = "Confirm Payment";
+            })
+            .catch((error) => {
+              console.error("Error saving transaction:", error);
+              showTopToast("Transaction confirmation error!", "#f44336");
+              payBtn.disabled = false;
+              payBtn.innerText = "Confirm Payment";
+            });
+        });
+      });
+
+      payButton.addEventListener("click", () => {
+        const appRadio = document.querySelector('input[name="upiApp"]:checked');
+        if (!appRadio) {
+          showTopToast("Select a UPI app before proceeding!", "#ff9800");
+          return;
+        }
+
+        const app = appRadio.value;
+        let pkg = "";
+        switch (app) {
+          case "phonepe": pkg = "com.phonepe.app"; break;
+          case "gpay": pkg = "com.google.android.apps.nbu.paisa.user"; break;
+          case "paytm": pkg = "net.one97.paytm"; break;
+        }
+
+        const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        if (isMobile) {
+          const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
+          window.location.href = intent;
+          showTopToast("If app didn’t open, try scanning the QR.", "#2196F3");
+        } else {
+          showTopToast("Please use a mobile device to make payment.", "#ff9800");
+        }
+      });
+
+    });
   });
 </script>
 </body>
