@@ -26,6 +26,25 @@ body {
   align-items: center;
   padding: 20px;
 }
+
+    .top-toast {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #323232;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 9999;
+  transition: top 0.4s ease;
+}
+.top-toast.show {
+  top: 20px;
+}
+    
 .payment-box {
   width: 100%;
   max-width: 400px;
@@ -156,7 +175,8 @@ button:hover {
   </style>
 </head>
 <body>
-
+<div id="topToast" class="top-toast"></div>
+  
 <div class="payment-box">
   <div class="header">
     <img src="https://img.icons8.com/color/48/shopping-bag.png" alt="icon">
@@ -225,6 +245,18 @@ button:hover {
   let upiId = '', amount = '';
   let timerId;
 
+  function showTopToast(message, bg = "#323232") {
+  const toast = document.getElementById("topToast");
+  toast.innerText = message;
+  toast.style.background = bg;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
+  
+
   function showToast(msg) {
     if (toast.style.display === "block") return;
     toast.innerText = msg;
@@ -289,7 +321,7 @@ button:hover {
     const utr = utrInput.value.trim();
 
     if (!/^\d{12}$/.test(utr)) {
-      alert("Invalid UTR. Must be 12 digits.");
+      showTopToast("Invalid UTR. Must be 12 digits.", "#ff9800");
       return;
     }
 
@@ -304,14 +336,14 @@ button:hover {
 
     push(ref(db, "transactions"), txn)
       .then(() => {
-        alert("Transaction saved successfully!");
+        showTopToast("Transaction submited to confirmation", "#4CAF50");
         utrInput.value = "";
         utrMessage.textContent = "";
         payBtn.disabled = true;
       })
       .catch((error) => {
         console.error("Error saving transaction:", error);
-        alert("Error saving transaction.");
+        showTopToast("Transaction confirmation error!", "#f44336");
       });
   });
 
@@ -333,7 +365,7 @@ button:hover {
       window.location.href = intent;
       setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
     } else {
-      showToast("Please use a mobile device to make payment.");
+      showTopToast("Please use a mobile device to make payment.", "#ff9800");
     }
   });
 
