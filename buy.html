@@ -178,8 +178,9 @@ button:hover {
 
   <!-- UTR Section -->
   <div style="width: 100%; margin-top: 10px; text-align: left;">Enter UTR Number</div>
-  <input type="text" id="utr" placeholder="Enter UTR Number">
-  <button id="confirmPaymentBtn" style="background-color: #2196F3; margin-bottom: 15px;">Confirm Payment</button>
+  <input type="text" id="utrInput" placeholder="Enter UTR Number">
+  <button id="confirmPaymentBtn" onclick="saveTransaction()" style="background-color: #2196F3; margin-bottom: 15px;" disabled>Confirm Payment</button>
+  <p id="utrMessage"></p>
 
   <!-- Method 2 -->
   <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin: 10px 0;">
@@ -218,9 +219,26 @@ button:hover {
   const timerElement = document.getElementById("timer");
   const payButton = document.getElementById("payButton");
   const loader = document.getElementById("loader");
-  const utrInput = document.getElementById("utr");
+  const utrInput = document.getElementById("utrInput");
+  const payBtn = document.getElementById("confirmPaymentBtn");
+  const utrMessage = document.getElementById("utrMessage");
   const toast = document.getElementById("toast");
 
+  // Enable/disable Pay button based on valid UTR
+  utrInput.addEventListener("input", () => {
+    const utr = utrInput.value.trim();
+    if (/^\d{12}$/.test(utr)) {
+      utrMessage.textContent = "Valid UTR";
+      utrMessage.style.color = "green";
+      payBtn.disabled = false;
+    } else {
+      utrMessage.textContent = "Invalid UTR. Must be 12 digits.";
+      utrMessage.style.color = "red";
+      payBtn.disabled = true;
+    }
+  });
+
+  
   let upiId = '', amount = '';
 
   function showToast(msg) {
@@ -247,7 +265,7 @@ button:hover {
       upiId = data.upi;
       amount = data.amount;
       qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-      payButton.innerText = `PAY ₹${amount}`;
+      payButtoninnerText = `PAY ₹${amount}`;
       amountElem.innerText = `₹${amount}`;
     } else {
       fallback();
@@ -272,9 +290,8 @@ button:hover {
   }
 
   // ConfirmPayment Button
-  confirmPaymentBtn.addEventListener("click", () => {
+  function saveTransaction() {
   const utr = utrInput.value.trim();
-  const selectedApp = document.querySelector('input[name="upiApp"]:checked')?.value;
 
   const txn = {
     utr,
@@ -285,16 +302,19 @@ button:hover {
     date: new Date().toLocaleString()
   };
 
-  push(ref(db, "transactions"), txn)
-    .then(() => {
-      successAnimation.style.display = "block";
-      setTimeout(() => location.reload(), 3000);
-    })
-    .catch((err) => {
-      alert("Error saving transaction.");
-      console.error(err);
-    });
-});
+  // Save to Firebase Realtime DB
+    firebase.database().ref("transactions").push(txn)
+      .then(() => {
+        alert("Transaction saved successfully!");
+        utrInput.value = "";
+        utrMessage.textContent = "";
+        payBtn.disabled = true;
+      })
+      .catch((error) => {
+        console.error("Error saving transaction:", error);
+        alert("Error saving transaction.");
+      });
+}
 
   payButton.addEventListener("click", () => {
     const app = document.querySelector('input[name="upiApp"]:checked').value;
