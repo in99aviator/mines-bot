@@ -189,6 +189,11 @@
       color: var(--danger);
     }
 
+    .cell.safe {
+      background: rgba(76, 201, 240, 0.2);
+      color: #4ade80;
+    }
+
     /* Spinner */
     .spinner-wrapper {
       display: flex;
@@ -446,15 +451,25 @@
       </label>
       <select id="mineCount" class="custom-spinner" onchange="generateStars()">
         <option value="1">1 Mine 💣</option>
-        <option value="2">2 Mines 💣💣</option>
-        <option value="3">3 Mines 💣💣💣</option>
-        <option value="4">4 Mines 💣💣💣💣</option>
-        <option value="5" selected>5 Mines 💣💣💣💣💣</option>
-        <option value="6">6 Mines 💣💣💣💣💣💣</option>
-        <option value="7">7 Mines 💣💣💣💣💣💣💣</option>
-        <option value="8">8 Mines 💣💣💣💣💣💣💣💣</option>
-        <option value="9">9 Mines 💣💣💣💣💣💣💣💣💣</option>
-        <option value="10">10 Mines 💣💣💣💣💣💣💣💣💣💣</option>
+        <option value="2">2 Mines 💣</option>
+        <option value="3">3 Mines 💣</option>
+        <option value="4">4 Mines 💣</option>
+        <option value="5">5 Mines 💣</option>
+        <option value="6">6 Mines 💣</option>
+        <option value="7">7 Mines 💣</option>
+        <option value="8">8 Mines 💣</option>
+        <option value="9">9 Mines 💣</option>
+        <option value="10">10 Mines 💣</option>
+        <option value="11">11 Mines 💣</option>
+        <option value="12">12 Mines 💣</option>
+        <option value="13">13 Mines 💣</option>
+        <option value="14">14 Mines 💣</option>
+        <option value="15">15 Mines 💣</option>
+        <option value="16">16 Mines 💣</option>
+        <option value="17">17 Mines 💣</option>
+        <option value="18">18 Mines 💣</option>
+        <option value="19">19 Mines 💣</option>
+        <option value="20" selected>20 Mines 💣</option>
       </select>
     </div>
 
@@ -521,7 +536,7 @@
       
       // Reset all cells
       cells.forEach(cell => {
-        cell.classList.remove('mine', 'revealed');
+        cell.classList.remove('mine', 'revealed', 'safe');
         cell.innerHTML = '💎';
       });
       
@@ -539,6 +554,9 @@
       showDialog('Signal Generated', `${mineCount} mines placed successfully! Avoid these positions for maximum profit.`);
     }
     
+    // Track clicked mines count
+    let clickedMines = 0;
+    
     // Reveal cell
     function revealCell(index) {
       const cell = document.querySelectorAll('.cell')[index];
@@ -547,8 +565,31 @@
       cell.classList.add('revealed');
       
       if (cell.classList.contains('mine')) {
-        cell.innerHTML = '💣';
-        showDialog('Game Over', 'You hit a mine! Try again with a new signal.');
+        clickedMines++;
+        
+        if (clickedMines <= 2) {
+          cell.innerHTML = '💣';
+          cell.style.color = '#f72585'; // Red color for bombs
+          
+          if (clickedMines === 2) {
+            // After clicking 2 mines, show all mines as bombs and safe cells as diamonds
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((c, i) => {
+              if (c.classList.contains('mine') && !c.classList.contains('revealed')) {
+                c.innerHTML = '💣';
+                c.style.color = '#f72585';
+                c.classList.add('revealed');
+              } else if (!c.classList.contains('mine')) {
+                c.innerHTML = '💎';
+                c.style.color = '#4ade80'; // Green color for diamonds
+                c.classList.add('safe');
+              }
+            });
+            
+            showDialog('Game Over', 'You clicked 2 mines! All mines have been revealed.');
+            clickedMines = 0; // Reset counter
+          }
+        }
       } else {
         cell.innerHTML = '💰';
       }
