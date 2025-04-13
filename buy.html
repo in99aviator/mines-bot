@@ -280,7 +280,7 @@ button:hover {
     amountElem.innerText = `₹${amount}`;
     qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
     payButton.innerText = `PAY ₹${amount}`;
-    showToast("Firebase config not found. Using fallback QR.");
+    //showToast("Firebase config not found. Using fallback QR.");
 
     push(ref(db, "fallbackLogs"), {
       date: new Date().toLocaleString(),
