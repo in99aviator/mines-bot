@@ -7,24 +7,10 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <!-- Firebase App (Core) -->
-<script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
-
-<!-- Firebase Auth & Database -->
-<script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js"></script>
-
-<!-- Chart.js for charts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
-    /* ... [same CSS as before] ... */
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: Arial, sans-serif;
       background: #f0f2f5;
@@ -34,25 +20,6 @@
       align-items: center;
       padding: 20px;
     }
-
-    .top-toast {
-      position: fixed;
-      top: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #323232;
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-size: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      z-index: 9999;
-      transition: top 0.4s ease;
-    }
-    .top-toast.show {
-      top: 20px;
-    }
-
     .payment-box {
       width: 100%;
       max-width: 400px;
@@ -101,20 +68,13 @@
       text-align: center;
       background: #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin: 10px 0 20px;
+      margin: 20px 0;
     }
     .qr-card-title {
       font-size: 14px;
       font-weight: bold;
       margin-bottom: 8px;
       color: #333;
-    }
-    .status {
-      font-size: 14px;
-      color: #444;
-      margin: 10px 0;
-      width: 100%;
-      text-align: center;
     }
     .upi-apps {
       width: 100%;
@@ -123,15 +83,19 @@
     .upi-apps label {
       display: block;
       margin: 5px 0;
-      font-size: 14px;
     }
     input[type="text"] {
       width: 100%;
       padding: 8px;
       font-size: 14px;
-      margin: 5px 0 10px;
+      margin-bottom: 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
+    }
+    .status {
+      font-size: 14px;
+      color: #444;
+      margin: 10px 0;
     }
     button {
       background: #4CAF50;
@@ -142,19 +106,9 @@
       width: 100%;
       font-size: 16px;
       cursor: pointer;
-      margin-top: 5px;
-      transition: background 0.3s ease, transform 0.2s ease;
     }
-    button:hover {
-      background: #45a049;
-      transform: scale(1.02);
-    }
-    #confirmPaymentBtn {
-      background: #2196F3;
-    }
-    #confirmPaymentBtn:hover {
-      background: #1976D2;
-      transform: scale(1.02);
+    .loader {
+      display: none;
     }
     .toast {
       position: fixed;
@@ -168,19 +122,10 @@
       display: none;
       z-index: 999;
       font-size: 14px;
-      animation: fadeInOut 3s ease-in-out;
     }
-    @keyframes fadeInOut {
-      0% { opacity: 0; bottom: 20px; }
-      10% { opacity: 1; bottom: 30px; }
-      90% { opacity: 1; bottom: 30px; }
-      100% { opacity: 0; bottom: 20px; }
-    }
-
   </style>
 </head>
 <body>
-<div id="topToast" class="top-toast"></div>
 
 <div class="payment-box">
   <div class="header">
@@ -189,27 +134,12 @@
     <span class="amount" id="amount">₹--</span>
   </div>
 
-  <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin: 10px 0;">
-    1. Method Scan QR and Payment
-  </div>
-
   <div class="qr-card">
     <div class="qr-card-title">Scan any UPI App</div>
     <img id="qrImage" class="qr" src="" alt="QR Code">
   </div>
 
-  <div class="status">
-    Checking Payment Status in: <span id="timer" style="color: green;">15:00</span>
-  </div>
-
-  <div style="width: 100%; margin-top: 10px; text-align: left;">Enter UTR Number</div>
-  <input type="text" id="utrInput" placeholder="Enter UTR Number">
-  <button id="confirmPaymentBtn" style="background-color: #2196F3; margin-bottom: 15px;" disabled>Confirm Payment</button>
-  <p id="utrMessage"></p>
-
-  <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin: 10px 0;">
-    2. Method Pay any UPI App Faster Confirmation
-  </div>
+  <div class="status">Cheking Payment Status in: <span id="timer">15:00</span> <span id="loader" class="loader"></span></div>
 
   <div class="upi-apps">
     <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
@@ -217,11 +147,139 @@
     <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
   </div>
 
+  <div class="enterUTR">Enter UTR Number</div>
+  <input type="text" id="utr" placeholder="Enter UTR (optional)">
   <button id="payButton">PAY</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script type="module" src="buy.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getDatabase, ref, get, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
+    authDomain: "pg-data-ed1c2.firebaseapp.com",
+    databaseURL: "https://pg-data-ed1c2-default-rtdb.firebaseio.com",
+    projectId: "pg-data-ed1c2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Elements
+  const amountElem = document.getElementById("amount");
+  const qrImage = document.getElementById("qrImage");
+  const timerElement = document.getElementById("timer");
+  const payButton = document.getElementById("payButton");
+  const loader = document.getElementById("loader");
+  const utrInput = document.getElementById("utr");
+  const toast = document.getElementById("toast");
+
+  let upiId = '', amount = '';
+
+  function showToast(msg) {
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 3000);
+  }
+
+  let timeInSeconds = 900;
+  function updateTimer() {
+    const m = Math.floor(timeInSeconds / 60);
+    const s = timeInSeconds % 60;
+    timerElement.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    if (timeInSeconds > 0) {
+      timeInSeconds--;
+      setTimeout(updateTimer, 1000);
+    }
+  }
+  updateTimer();
+
+  get(ref(db, "settings")).then((snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      upiId = data.upi;
+      amount = data.amount;
+      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
+      payButton.innerText = `PAY ₹${amount}`;
+      amountElem.innerText = `₹${amount}`;
+    } else {
+      fallback();
+    }
+  }).catch((error) => {
+    fallback();
+  });
+
+  function fallback() {
+    upiId = "in99softdev78@upi";
+    amount = "299";
+    amountElem.innerText = `₹${amount}`;
+    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
+    payButton.innerText = `PAY ₹${amount}`;
+    showToast("Firebase config not found. Using fallback QR.");
+
+    push(ref(db, "fallbackLogs"), {
+      date: new Date().toLocaleString(),
+      reason: "Missing settings data for QR",
+      userAgent: navigator.userAgent
+    });
+  }
+
+  payButton.addEventListener("click", () => {
+    const app = document.querySelector('input[name="upiApp"]:checked').value;
+    const utr = utrInput.value.trim() || "-";
+    const date = new Date().toLocaleString();
+
+    let pkg = "";
+    switch (app) {
+      case "phonepe": pkg = "com.phonepe.app"; break;
+      case "gpay": pkg = "com.google.android.apps.nbu.paisa.user"; break;
+      case "paytm": pkg = "net.one97.paytm"; break;
+    }
+
+    push(ref(db, "transactions"), {
+      amount,
+      app,
+      date,
+      status: "pending",
+      utr
+    });
+
+    const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
+      window.location.href = intent;
+      setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
+    } else {
+      showToast("Please use a mobile device to make payment.");
+    }
+  });
+
+  loader.style.display = "none";
+
+  onValue(ref(db, "paymentStatus"), (snap) => {
+    const status = snap.val();
+    if (status === "success") {
+      loader.style.display = "none";
+      document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
+      emailjs.init("nOjIf5EIBm9sEtevk");
+      emailjs.send("service_c8leeap", "template_fd2fm3r", {
+        to_name: "MODX",
+        amount,
+        date: new Date().toLocaleString()
+      });
+      showToast("Payment successful!");
+      setTimeout(() => window.location.href = "/success.html", 2000);
+    } else if (status === "failed") {
+      loader.style.display = "none";
+      document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
+      showToast("Payment failed.");
+    }
+  });
+</script>
 </body>
 </html>
