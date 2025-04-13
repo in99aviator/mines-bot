@@ -325,7 +325,61 @@
           showToast('Please enter your name', true);
           return;
         }
-      }
+      createUserWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        const uid = userCredential.user.uid;
+        const date = new Date().toLocaleString();
+        set(ref(db, "users/" + uid), {
+          uid: uid,
+          name: name,
+          email: email,
+          password: password,
+          status: "no active",
+          registrationDate: date
+        }).then(() => showToast("User registered successfully!"));
+      })
+      .catch(err => showToast(err.message));
+  } else {
+    // Login
+// Login
+signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    const uid = userCredential.user.uid;
+
+    // Fetch user status from database
+    const userRef = ref(db, "users/" + uid);
+    get(userRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          const status = userData.status;
+
+          if (status === "active") {
+            showToast("Login successful! Redirecting...");
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 1000);
+          } else if (status === "blocked") {
+            showToast("Your account is blocked!");
+            setTimeout(() => {
+              window.location.href = "blocked.html";
+            }, 1000);
+          } else {
+            showToast("Your account is not active!");
+            setTimeout(() => {
+              window.location.href = "buy.html";
+            }, 1000);
+          }
+        } else {
+          showToast("User data not found!");
+        }
+      })
+      .catch((error) => {
+        showToast("Failed to fetch user data: " + error.message);
+      });
+  })
+  .catch((err) => showToast(err.message));
+  }
       
       // Show loading state
       submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
