@@ -223,7 +223,7 @@ button:hover {
   import { getDatabase, ref, get, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    const firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
     authDomain: "pg-data-ed1c2.firebaseapp.com",
     databaseURL: "https://pg-data-ed1c2-default-rtdb.firebaseio.com",
@@ -237,7 +237,7 @@ button:hover {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
-      
+
   const amountElem = document.getElementById("amount");
   const qrImage = document.getElementById("qrImage");
   const timerElement = document.getElementById("timer");
@@ -252,16 +252,12 @@ button:hover {
   let timerId;
 
   function showTopToast(message, bg = "#323232") {
-  const toast = document.getElementById("topToast");
-  toast.innerText = message;
-  toast.style.background = bg;
-  toast.classList.add("show");
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3000);
-}
-  
+    const toast = document.getElementById("topToast");
+    toast.innerText = message;
+    toast.style.background = bg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 3000);
+  }
 
   function showToast(msg) {
     if (toast.style.display === "block") return;
@@ -283,6 +279,8 @@ button:hover {
     }
   });
 
+  let timeInSeconds = 900;
+
   function updateTimer() {
     const m = Math.floor(timeInSeconds / 60);
     const s = timeInSeconds % 60;
@@ -293,32 +291,43 @@ button:hover {
     }
   }
 
-  let timeInSeconds = 900;
   updateTimer();
+  loader.style.display = "block";
 
   get(ref(db, "settings")).then((snapshot) => {
-  if (snapshot.exists()) {
-    const data = snapshot.val();
-    upiId = data.upi;
-    amount = data.amount;
-    const upiData = encodeURIComponent(`upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`);
-    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${upiData}`;
-    payButton.innerText = `PAY ₹${amount}`;
-    amountElem.innerText = `₹${amount}`;
-  } else {
-    console.log("Settings node not found, falling back.");
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      upiId = data.upi;
+      amount = data.amount;
+
+      const upiData = encodeURIComponent(`upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`);
+      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${upiData}`;
+      payButton.innerText = `PAY ₹${amount}`;
+      amountElem.innerText = `₹${amount}`;
+    } else {
+      fallback();
+    }
+  }).catch((error) => {
+    console.error("Error fetching settings:", error);
     fallback();
-  }
-}).catch((error) => {
-  console.error("Error fetching settings:", error);
-  fallback();
-});
+  });
+
+  qrImage.onload = () => {
+    loader.style.display = "none";
+  };
+
+  qrImage.onerror = () => {
+    showTopToast("QR load failed. Try again.", "#f44336");
+    loader.style.display = "none";
+  };
 
   function fallback() {
     upiId = "in99softdev78@upi";
     amount = "299";
     amountElem.innerText = `₹${amount}`;
-    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
+
+    const fallbackUpi = encodeURIComponent(`upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`);
+    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${fallbackUpi}`;
     payButton.innerText = `PAY ₹${amount}`;
 
     push(ref(db, "fallbackLogs"), {
@@ -331,7 +340,7 @@ button:hover {
   payBtn.addEventListener("click", () => {
     const user = auth.currentUser;
     if (!user) {
-     showTopToast("User not logged in!", "#f44336");
+      showTopToast("User not logged in!", "#f44336");
       return;
     }
 
@@ -344,22 +353,21 @@ button:hover {
     }
 
     const txn = {
-    uid,
-    utr,
-    app: "UPI",
-    amount,
-    upi: upiId,
-    status: "Pending",
-    date: new Date().toLocaleString()
+      uid,
+      utr,
+      app: "UPI",
+      amount,
+      upi: upiId,
+      status: "Pending",
+      date: new Date().toLocaleString()
     };
 
     push(ref(db, "transactions"), txn)
       .then(() => {
-        showTopToast("Transaction submited to confirmation", "#4CAF50");
+        showTopToast("Transaction submitted for confirmation", "#4CAF50");
         utrInput.value = "";
         utrMessage.textContent = "";
         payBtn.disabled = true;
-        window.location.href = "success.html";
       })
       .catch((error) => {
         console.error("Error saving transaction:", error);
@@ -368,8 +376,13 @@ button:hover {
   });
 
   payButton.addEventListener("click", () => {
-    const app = document.querySelector('input[name="upiApp"]:checked').value;
+    const appRadio = document.querySelector('input[name="upiApp"]:checked');
+    if (!appRadio) {
+      showTopToast("Select a UPI app before proceeding!", "#ff9800");
+      return;
+    }
 
+    const app = appRadio.value;
     let pkg = "";
     switch (app) {
       case "phonepe": pkg = "com.phonepe.app"; break;
@@ -384,13 +397,10 @@ button:hover {
       const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
       window.location.href = intent;
       showTopToast("If app didn’t open, try scanning the QR.", "#2196F3");
-      //setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
     } else {
       showTopToast("Please use a mobile device to make payment.", "#ff9800");
     }
   });
-
-  loader.style.display = "none";
 
   onValue(ref(db, "paymentStatus"), (snap) => {
     const status = snap.val();
@@ -398,12 +408,14 @@ button:hover {
       clearTimeout(timerId);
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
+
       emailjs.init("nOjIf5EIBm9sEtevk");
       emailjs.send("service_c8leeap", "template_fd2fm3r", {
         to_name: "MODX",
         amount,
         date: new Date().toLocaleString()
       });
+
       showToast("Payment successful!");
       setTimeout(() => window.location.href = "/success.html", 2000);
     } else if (status === "failed") {
@@ -411,6 +423,27 @@ button:hover {
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
       showToast("Payment failed.");
+    }
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const uid = user.uid;
+      const userRef = ref(db, 'users/' + uid);
+      get(userRef).then(snapshot => {
+        if (snapshot.exists()) {
+          const status = snapshot.val().status;
+          if (status === "blocked") {
+            window.location.href = "blocked.html";
+          }
+        } else {
+          window.location.href = "auth.html";
+        }
+      }).catch(() => {
+        window.location.href = "auth.html";
+      });
+    } else {
+      window.location.href = "auth.html";
     }
   });
 </script>
