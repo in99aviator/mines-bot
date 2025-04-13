@@ -359,6 +359,7 @@ button:hover {
         utrInput.value = "";
         utrMessage.textContent = "";
         payBtn.disabled = true;
+        window.location.href = "success.html";
       })
       .catch((error) => {
         console.error("Error saving transaction:", error);
@@ -412,33 +413,6 @@ button:hover {
       showToast("Payment failed.");
     }
   });
-
-  onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const uid = user.uid;
-    const userRef = ref(db, 'users/' + uid);
-
-    get(userRef).then(snapshot => {
-      if (snapshot.exists()) {
-        const status = snapshot.val().status;
-
-        if (status === "blocked") {
-          window.location.href = "blocked.html";
-        } else if (status === "active") {
-          window.location.href = "splash.html";
-        }
-        // else: do nothing, stay on page
-      } else {
-        window.location.href = "auth.html";
-      }
-    }).catch(() => {
-      window.location.href = "auth.html";
-    });
-  } else {
-    window.location.href = "auth.html";
-  }
-});
-
 </script>
 </body>
 </html>
