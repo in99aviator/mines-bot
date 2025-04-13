@@ -2,52 +2,197 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Payment Success - MODX TEAM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful | MODX TEAM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
+    :root {
+      --success: #4cc9f0;
+      --success-dark: #3a86ff;
+      --light: #f8f9fa;
+      --dark: #1a1a2e;
+      --white: #ffffff;
+    }
+
+    * {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #e0ffe0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa, #e0ffe0);
+      color: var(--dark);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      padding: 1rem;
     }
 
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
+    .success-container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 3rem 2rem;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .box h1 {
-      color: green;
+    .success-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, var(--success), var(--success-dark));
     }
 
-    .box p {
-      margin: 10px 0;
-      font-size: 16px;
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(76, 201, 240, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      color: var(--success-dark);
+      font-size: 2.5rem;
+      border: 3px solid var(--success);
     }
 
-    .box a {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      background: green;
+    .success-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--success), var(--success-dark));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .success-message {
+      font-size: 1rem;
+      color: var(--dark);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      background: linear-gradient(135deg, var(--success), var(--success-dark));
       color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+    }
+
+    .transaction-details {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: rgba(245, 245, 245, 0.8);
+      border-radius: 8px;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .detail-label {
+      color: var(--dark);
+      opacity: 0.7;
+    }
+
+    .detail-value {
+      font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+      .success-container {
+        padding: 2rem 1.5rem;
+      }
+      
+      .success-title {
+        font-size: 1.75rem;
+      }
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-container {
+      animation: fadeIn 0.6s ease-out;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>Payment Successful!</h1>
-    <p>Thank you for your payment.</p>
-    <p>You will receive confirmation soon.</p>
-    <a href="index.html">Go Back</a>
+  <div class="success-container">
+    <div class="success-icon">
+      <i class="fas fa-check"></i>
+    </div>
+    <h1 class="success-title">Payment Successful!</h1>
+    <p class="success-message">
+      Thank you for your payment. Your transaction has been completed successfully.
+      <br><br>
+      You will receive a confirmation email shortly with your receipt.
+    </p>
+    
+    <div class="transaction-details">
+      <div class="detail-item">
+        <span class="detail-label">Transaction ID:</span>
+        <span class="detail-value" id="txnId">TXN-XXXXXX</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Amount Paid:</span>
+        <span class="detail-value" id="amount">₹299.00</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Date:</span>
+        <span class="detail-value" id="date">Loading...</span>
+      </div>
+    </div>
+    
+    <a href="index.html" class="btn">
+      <i class="fas fa-home"></i> Return to Dashboard
+    </a>
   </div>
+
+  <script>
+    // Display transaction details (you would replace this with actual data from your system)
+    document.getElementById('txnId').textContent = 'TXN-' + Math.floor(Math.random() * 1000000);
+    document.getElementById('amount').textContent = '₹' + (localStorage.getItem('paymentAmount') || '299.00');
+    document.getElementById('date').textContent = new Date().toLocaleString();
+    
+    // Clear payment amount from storage
+    localStorage.removeItem('paymentAmount');
+  </script>
 </body>
 </html>
