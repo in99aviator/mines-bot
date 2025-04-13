@@ -425,27 +425,6 @@ button:hover {
       showToast("Payment failed.");
     }
   });
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const uid = user.uid;
-      const userRef = ref(db, 'users/' + uid);
-      get(userRef).then(snapshot => {
-        if (snapshot.exists()) {
-          const status = snapshot.val().status;
-          if (status === "blocked") {
-            window.location.href = "blocked.html";
-          }
-        } else {
-          window.location.href = "auth.html";
-        }
-      }).catch(() => {
-        window.location.href = "auth.html";
-      });
-    } else {
-      window.location.href = "auth.html";
-    }
-  });
 </script>
 </body>
 </html>
