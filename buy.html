@@ -363,7 +363,8 @@ button:hover {
     if (isMobile) {
       const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
       window.location.href = intent;
-      setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
+      showTopToast("If app didn’t open, try scanning the QR.", "#2196F3");
+      //setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
     } else {
       showTopToast("Please use a mobile device to make payment.", "#ff9800");
     }
