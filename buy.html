@@ -123,6 +123,10 @@
       z-index: 999;
       font-size: 14px;
     }
+    #confirmPaymentBtn {
+      margin-top: 10px;
+      background-color: #2196F3;
+    }
   </style>
 </head>
 <body>
@@ -134,21 +138,28 @@
     <span class="amount" id="amount">₹--</span>
   </div>
 
+  <h4 style="width:100%; text-align:left; margin-bottom:10px; margin-top:10px;">1. Method - Scan Any UPI App to Pay</h4>
   <div class="qr-card">
     <div class="qr-card-title">Scan any UPI App</div>
     <img id="qrImage" class="qr" src="" alt="QR Code">
   </div>
 
-  <div class="status">Cheking Payment Status in: <span id="timer">15:00</span> <span id="loader" class="loader"></span></div>
-
+  <div class="status">
+    Cheking Payment Status in: 
+    <span id="timer" style="color: green; font-weight: bold;">15:00</span> 
+    <span id="loader" class="loader"></span>
+  </div>
+  <div style="width: 100%; margin-top: 10px;">Enter UTR Number</div>
+  <input type="text" id="validUtr" placeholder="Valid UTR Number">
+  <button id="confirmPaymentBtn">Confirm Payment</button>
+  
+  <h4 style="width:100%; text-align:left; margin-bottom:10px; margin-top:10px;">2. Method - Pay using UPI App faster confirmation.</h4>
   <div class="upi-apps">
     <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
     <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
     <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
   </div>
-
-  <div class="enterUTR">Enter UTR Number</div>
-  <input type="text" id="utr" placeholder="Enter UTR (optional)">
+  
   <button id="payButton">PAY</button>
 </div>
 
@@ -157,7 +168,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getDatabase, ref, get, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+  
   const firebaseConfig = {
     apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
     authDomain: "mines-botai.firebaseapp.com",
@@ -167,6 +179,7 @@
   
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const auth = getAuth(app);
 
   // Elements
   const amountElem = document.getElementById("amount");
@@ -226,6 +239,43 @@
       userAgent: navigator.userAgent
     });
   }
+
+document.getElementById("confirmPaymentBtn").addEventListener("click", () => {
+  const utr = document.getElementById("validUtr").value.trim();
+  if (!utr || utr.length < 12) {
+    showToast("Enter a valid UTR (min 12 chars)");
+    return;
+  }
+
+  const date = new Date().toLocaleString();
+  const amountValue = amount || "0";
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const uid = user.uid;
+      const data = {
+        uid,
+        utr,
+        amount: amountValue,
+        app: "UPI",
+        date,
+        status: "pending"
+      };
+
+      const refPath = `confirmedUTRs/${uid}_${Date.now()}`;
+      set(ref(db, refPath), data)
+        .then(() => {
+          showToast("UTR Confirmed & Saved!");
+        })
+        .catch((err) => {
+          console.error("Error saving UTR:", err);
+          showToast("Failed to save. Try again.");
+        });
+    } else {
+      showToast("User not logged in");
+    }
+  });
+});
 
   payButton.addEventListener("click", () => {
     const app = document.querySelector('input[name="upiApp"]:checked').value;
