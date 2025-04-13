@@ -238,6 +238,35 @@ button:hover {
   const auth = getAuth(app);
   const db = getDatabase(app);
 
+   window.addEventListener("load", () => {
+    setTimeout(() => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const uid = user.uid;
+          const userRef = ref(db, 'users/' + uid);
+          get(userRef).then(snapshot => {
+            if (snapshot.exists()) {
+              const status = snapshot.val().status;
+              if (status === "active") {
+                window.location.href = "index.html";
+              } else if (status === "blocked") {
+                window.location.href = "blocked.html";
+              } else {
+                
+              }
+            } else {
+              window.location.href = "auth.html";
+            }
+          }).catch(() => {
+            window.location.href = "auth.html";
+          });
+        } else {
+          window.location.href = "auth.html";
+        }
+      });
+    }, 3000);
+  });
+
   const amountElem = document.getElementById("amount");
   const qrImage = document.getElementById("qrImage");
   const timerElement = document.getElementById("timer");
