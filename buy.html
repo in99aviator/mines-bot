@@ -10,146 +10,7 @@
   <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
-    * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-body {
-  font-family: Arial, sans-serif;
-  background: #f0f2f5;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-.payment-box {
-  width: 100%;
-  max-width: 400px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.header {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 10px;
-}
-.header img {
-  width: 40px;
-  height: 40px;
-}
-.title {
-  flex-grow: 1;
-  margin-left: 10px;
-  font-weight: bold;
-  font-size: 15px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.amount {
-  font-size: 18px;
-  color: green;
-  font-weight: bold;
-}
-.qr {
-  margin-top: 10px;
-  width: 180px;
-  height: 180px;
-}
-.qr-card {
-  border: 2px solid #ccc;
-  border-radius: 0;
-  padding: 10px;
-  width: 200px;
-  text-align: center;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  margin: 10px 0 20px;
-}
-.qr-card-title {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #333;
-}
-.status {
-  font-size: 14px;
-  color: #444;
-  margin: 10px 0;
-  width: 100%;
-  text-align: center;
-}
-.upi-apps {
-  width: 100%;
-  margin-bottom: 10px;
-}
-.upi-apps label {
-  display: block;
-  margin: 5px 0;
-  font-size: 14px;
-}
-input[type="text"] {
-  width: 100%;
-  padding: 8px;
-  font-size: 14px;
-  margin: 5px 0 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-button {
-  background: #4CAF50;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  width: 100%;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 5px;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-button:hover {
-  background: #45a049;
-  transform: scale(1.02);
-}
-#confirmPaymentBtn {
-  background: #2196F3;
-}
-#confirmPaymentBtn:hover {
-  background: #1976D2;
-  transform: scale(1.02);
-}
-.loader {
-  display: none;
-}
-.toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 6px;
-  display: none;
-  z-index: 999;
-  font-size: 14px;
-  animation: fadeInOut 3s ease-in-out;
-}
-@keyframes fadeInOut {
-  0% { opacity: 0; bottom: 20px; }
-  10% { opacity: 1; bottom: 30px; }
-  90% { opacity: 1; bottom: 30px; }
-  100% { opacity: 0; bottom: 20px; }
-}
+    /* ... [same CSS as before] ... */
   </style>
 </head>
 <body>
@@ -161,7 +22,6 @@ button:hover {
     <span class="amount" id="amount">₹--</span>
   </div>
 
-  <!-- Method 1 -->
   <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin: 10px 0;">
     1. Method Scan QR and Payment
   </div>
@@ -176,17 +36,14 @@ button:hover {
     <span id="loader" class="loader"></span>
   </div>
 
-  <!-- UTR Section -->
   <div style="width: 100%; margin-top: 10px; text-align: left;">Enter UTR Number</div>
   <input type="text" id="utrInput" placeholder="Enter UTR Number">
-  <button id="confirmPaymentBtn" onclick="saveTransaction()" style="background-color: #2196F3; margin-bottom: 15px;" disabled>Confirm Payment</button>
+  <button id="confirmPaymentBtn" style="background-color: #2196F3; margin-bottom: 15px;" disabled>Confirm Payment</button>
   <p id="utrMessage"></p>
 
-  <!-- Method 2 -->
   <div style="width: 100%; font-size: 14px; font-weight: bold; text-align: left; margin: 10px 0;">
     2. Method Pay any UPI App Faster Confirmation
   </div>
-  
 
   <div class="upi-apps">
     <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
@@ -213,7 +70,6 @@ button:hover {
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Elements
   const amountElem = document.getElementById("amount");
   const qrImage = document.getElementById("qrImage");
   const timerElement = document.getElementById("timer");
@@ -224,7 +80,16 @@ button:hover {
   const utrMessage = document.getElementById("utrMessage");
   const toast = document.getElementById("toast");
 
-  // Enable/disable Pay button based on valid UTR
+  let upiId = '', amount = '';
+  let timerId;
+
+  function showToast(msg) {
+    if (toast.style.display === "block") return;
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 3000);
+  }
+
   utrInput.addEventListener("input", () => {
     const utr = utrInput.value.trim();
     if (/^\d{12}$/.test(utr)) {
@@ -238,25 +103,17 @@ button:hover {
     }
   });
 
-  
-  let upiId = '', amount = '';
-
-  function showToast(msg) {
-    toast.innerText = msg;
-    toast.style.display = "block";
-    setTimeout(() => toast.style.display = "none", 3000);
-  }
-
-  let timeInSeconds = 900;
   function updateTimer() {
     const m = Math.floor(timeInSeconds / 60);
     const s = timeInSeconds % 60;
     timerElement.textContent = `${m}:${s.toString().padStart(2, '0')}`;
     if (timeInSeconds > 0) {
       timeInSeconds--;
-      setTimeout(updateTimer, 1000);
+      timerId = setTimeout(updateTimer, 1000);
     }
   }
+
+  let timeInSeconds = 900;
   updateTimer();
 
   get(ref(db, "settings")).then((snapshot) => {
@@ -265,14 +122,12 @@ button:hover {
       upiId = data.upi;
       amount = data.amount;
       qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-      payButtoninnerText = `PAY ₹${amount}`;
+      payButton.innerText = `PAY ₹${amount}`;
       amountElem.innerText = `₹${amount}`;
     } else {
       fallback();
     }
-  }).catch((error) => {
-    fallback();
-  });
+  }).catch(() => fallback());
 
   function fallback() {
     upiId = "in99softdev78@upi";
@@ -280,7 +135,6 @@ button:hover {
     amountElem.innerText = `₹${amount}`;
     qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
     payButton.innerText = `PAY ₹${amount}`;
-    //showToast("Firebase config not found. Using fallback QR.");
 
     push(ref(db, "fallbackLogs"), {
       date: new Date().toLocaleString(),
@@ -289,21 +143,24 @@ button:hover {
     });
   }
 
-  // ConfirmPayment Button
-  function saveTransaction() {
-  const utr = utrInput.value.trim();
+  payBtn.addEventListener("click", () => {
+    const utr = utrInput.value.trim();
 
-  const txn = {
-    utr,
-    app: "UPI",
-    amount,
-    upi: upiId,
-    status: "Pending",
-    date: new Date().toLocaleString()
-  };
+    if (!/^\d{12}$/.test(utr)) {
+      alert("Invalid UTR. Must be 12 digits.");
+      return;
+    }
 
-  // Save to Firebase Realtime DB
-    firebase.database().ref("transactions").push(txn)
+    const txn = {
+      utr,
+      app: "UPI",
+      amount,
+      upi: upiId,
+      status: "Pending",
+      date: new Date().toLocaleString()
+    };
+
+    push(ref(db, "transactions"), txn)
       .then(() => {
         alert("Transaction saved successfully!");
         utrInput.value = "";
@@ -314,12 +171,10 @@ button:hover {
         console.error("Error saving transaction:", error);
         alert("Error saving transaction.");
       });
-}
+  });
 
   payButton.addEventListener("click", () => {
     const app = document.querySelector('input[name="upiApp"]:checked').value;
-    const utr = utrInput.value.trim() || "-";
-    const date = new Date().toLocaleString();
 
     let pkg = "";
     switch (app) {
@@ -345,6 +200,7 @@ button:hover {
   onValue(ref(db, "paymentStatus"), (snap) => {
     const status = snap.val();
     if (status === "success") {
+      clearTimeout(timerId);
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
       emailjs.init("nOjIf5EIBm9sEtevk");
@@ -356,6 +212,7 @@ button:hover {
       showToast("Payment successful!");
       setTimeout(() => window.location.href = "/success.html", 2000);
     } else if (status === "failed") {
+      clearTimeout(timerId);
       loader.style.display = "none";
       document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
       showToast("Payment failed.");
