@@ -353,6 +353,13 @@ button:hover {
   }
 
   payBtn.addEventListener("click", () => {
+    const user = auth.currentUser;
+    if (!user) {
+     showTopToast("User not logged in!", "#f44336");
+      return;
+    }
+
+    const uid = user.uid;
     const utr = utrInput.value.trim();
 
     if (!/^\d{12}$/.test(utr)) {
@@ -361,12 +368,13 @@ button:hover {
     }
 
     const txn = {
-      utr,
-      app: "UPI",
-      amount,
-      upi: upiId,
-      status: "Pending",
-      date: new Date().toLocaleString()
+    uid,
+    utr,
+    app: "UPI",
+    amount,
+    upi: upiId,
+    status: "Pending",
+    date: new Date().toLocaleString()
     };
 
     push(ref(db, "transactions"), txn)
