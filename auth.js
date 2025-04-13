@@ -66,7 +66,7 @@ submitBtn.addEventListener("click", () => {
           name: name,
           email: email,
           password: password,
-          status: "active",
+          status: "no active",
           registrationDate: date
         }).then(() => showToast("User registered successfully!"));
       })
