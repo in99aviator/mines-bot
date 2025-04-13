@@ -2,168 +2,376 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MODX UPI Payment</title>
+  <title>MODX UPI Payment Gateway</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --white: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      height: 100vh;
+      background: #f5f7fa;
+      color: var(--dark);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      padding: 1rem;
     }
-    .payment-box {
+
+    .payment-container {
       width: 100%;
-      max-width: 400px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 480px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .payment-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .payment-header i {
+      font-size: 1.5rem;
+    }
+
+    .payment-header h2 {
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
+
+    .payment-amount {
+      margin-left: auto;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .payment-body {
+      padding: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title i {
+      color: var(--primary);
+    }
+
+    .qr-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin: 1.5rem 0;
     }
-    .header {
-      display: flex;
-      align-items: center;
+
+    .qr-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       width: 100%;
-      margin-bottom: 10px;
+      max-width: 240px;
     }
-    .header img {
-      width: 40px;
-      height: 40px;
+
+    .qr-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--gray);
     }
-    .title {
-      flex-grow: 1;
-      margin-left: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .amount {
-      font-size: 18px;
-      color: green;
-      font-weight: bold;
-    }
-    .qr {
-      margin-top: 10px;
+
+    .qr-image {
       width: 180px;
       height: 180px;
+      margin: 0 auto;
     }
-    .qr-card {
-      border: 2px solid #ccc;
-      border-radius: 0;
-      padding: 10px;
-      width: 200px;
+
+    .status-container {
+      background: rgba(245, 245, 245, 0.8);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1.5rem 0;
       text-align: center;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin: 20px 0;
     }
-    .qr-card-title {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #333;
+
+    .status-text {
+      font-size: 0.875rem;
+      color: var(--gray);
     }
-    .upi-apps {
-      width: 100%;
-      margin-bottom: 10px;
+
+    .timer {
+      font-weight: 600;
+      color: var(--primary);
     }
-    .upi-apps label {
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
       display: block;
-      margin: 5px 0;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-dark);
     }
-    input[type="text"] {
+
+    .form-control {
       width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      transition: all 0.3s;
     }
-    .status {
-      font-size: 14px;
-      color: #444;
-      margin: 10px 0;
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
     }
-    button {
-      background: #4CAF50;
-      color: #fff;
-      padding: 10px;
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
       border: none;
-      border-radius: 5px;
-      width: 100%;
-      font-size: 16px;
       cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .loader {
-      display: none;
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
     }
-    .toast {
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #3a86ff);
+      color: white;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 201, 240, 0.3);
+    }
+
+    .payment-methods {
+      margin: 1.5rem 0;
+    }
+
+    .method-option {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .method-option:hover {
+      border-color: var(--primary);
+      background: rgba(67, 97, 238, 0.05);
+    }
+
+    .method-option input[type="radio"] {
+      margin-right: 0.75rem;
+    }
+
+    .method-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 0.75rem;
+    }
+
+    .method-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    /* Toast */
+    #toast {
       position: fixed;
-      bottom: 30px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 6px;
-      display: none;
-      z-index: 999;
-      font-size: 14px;
+      background: var(--dark);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 9999;
     }
-    #confirmPaymentBtn {
-      margin-top: 10px;
-      background-color: #2196F3;
+
+    #toast.show {
+      opacity: 1;
+    }
+
+    .toast-icon {
+      font-size: 1.25rem;
+    }
+
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+
+    /* Loader */
+    .loader {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 0.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .payment-container {
+        border-radius: 0;
+      }
+      
+      .payment-header {
+        padding: 1rem;
+      }
+      
+      .payment-body {
+        padding: 1rem;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="payment-box">
-  <div class="header">
-    <img src="https://img.icons8.com/color/48/shopping-bag.png" alt="icon">
-    <span class="title">MODX CRAZY TEAM</span>
-    <span class="amount" id="amount">₹--</span>
+<div class="payment-container">
+  <div class="payment-header">
+    <i class="fas fa-wallet"></i>
+    <h2>UPI Payment</h2>
+    <div class="payment-amount" id="amount">₹--</div>
   </div>
 
-  <h4 style="width:100%; text-align:left; margin-bottom:10px; margin-top:10px;">1. Method - Scan Any UPI App to Pay</h4>
-  <div class="qr-card">
-    <div class="qr-card-title">Scan any UPI App</div>
-    <img id="qrImage" class="qr" src="" alt="QR Code">
-  </div>
+  <div class="payment-body">
+    <h3 class="section-title">
+      <i class="fas fa-qrcode"></i> Scan QR Code to Pay
+    </h3>
+    
+    <div class="qr-container">
+      <div class="qr-card">
+        <div class="qr-title">Scan with any UPI app</div>
+        <img id="qrImage" class="qr-image" src="" alt="QR Code">
+      </div>
+    </div>
 
-  <div class="status">
-    Cheking Payment Status in: 
-    <span id="timer" style="color: green; font-weight: bold;">15:00</span> 
-    <span id="loader" class="loader"></span>
+    <div class="status-container">
+      <p class="status-text">
+        Checking payment status in: 
+        <span class="timer" id="timer">15:00</span>
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="validUtr" class="form-label">Enter UTR Number</label>
+      <input type="text" id="validUtr" class="form-control" placeholder="Enter 12-digit UTR">
+    </div>
+
+    <button id="confirmPaymentBtn" class="btn btn-success">
+      <i class="fas fa-check-circle"></i> Confirm Payment
+    </button>
+
+    <h3 class="section-title" style="margin-top: 2rem;">
+      <i class="fas fa-mobile-alt"></i> Pay with UPI App
+    </h3>
+
+    <div class="payment-methods">
+      <label class="method-option">
+        <input type="radio" name="upiApp" value="phonepe" checked>
+        <img src="https://img.icons8.com/color/48/000000/phonepe.png" class="method-icon" alt="PhonePe">
+        <span class="method-name">PhonePe</span>
+      </label>
+      
+      <label class="method-option">
+        <input type="radio" name="upiApp" value="gpay">
+        <img src="https://img.icons8.com/color/48/000000/google-pay.png" class="method-icon" alt="Google Pay">
+        <span class="method-name">Google Pay</span>
+      </label>
+      
+      <label class="method-option">
+        <input type="radio" name="upiApp" value="paytm">
+        <img src="https://img.icons8.com/color/48/000000/paytm.png" class="method-icon" alt="Paytm">
+        <span class="method-name">Paytm</span>
+      </label>
+    </div>
+
+    <button id="payButton" class="btn btn-primary">
+      <i class="fas fa-paper-plane"></i> PAY NOW
+    </button>
   </div>
-  <div style="width: 100%; margin-top: 10px;">Enter UTR Number</div>
-  <input type="text" id="validUtr" placeholder="Valid UTR Number">
-  <button id="confirmPaymentBtn">Confirm Payment</button>
-  
-  <h4 style="width:100%; text-align:left; margin-bottom:10px; margin-top:10px;">2. Method - Pay using UPI App faster ✅</h4>
-  <div class="upi-apps">
-    <label><input type="radio" name="upiApp" value="phonepe" checked> PhonePe</label>
-    <label><input type="radio" name="upiApp" value="gpay"> Google Pay</label>
-    <label><input type="radio" name="upiApp" value="paytm"> Paytm</label>
-  </div>
-  
-  <button id="payButton">PAY</button>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast">
+  <i class="fas fa-check-circle toast-icon"></i>
+  <div class="toast-content">Message</div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
@@ -186,98 +394,120 @@
   const qrImage = document.getElementById("qrImage");
   const timerElement = document.getElementById("timer");
   const payButton = document.getElementById("payButton");
-  const loader = document.getElementById("loader");
-  const utrInput = document.getElementById("utr");
+  const confirmPaymentBtn = document.getElementById("confirmPaymentBtn");
   const toast = document.getElementById("toast");
 
   let upiId = '', amount = '';
 
-  function showToast(msg) {
-    toast.innerText = msg;
-    toast.style.display = "block";
-    setTimeout(() => toast.style.display = "none", 3000);
+  function showToast(message, isError = false) {
+    toast.className = isError ? "toast-error" : "toast-success";
+    toast.querySelector('.toast-icon').className = isError 
+      ? "fas fa-exclamation-circle toast-icon" 
+      : "fas fa-check-circle toast-icon";
+    toast.querySelector('.toast-content').textContent = message;
+    toast.classList.add("show");
+    
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
   }
 
   let timeInSeconds = 900;
   function updateTimer() {
-    const m = Math.floor(timeInSeconds / 60);
-    const s = timeInSeconds % 60;
-    timerElement.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
     if (timeInSeconds > 0) {
       timeInSeconds--;
       setTimeout(updateTimer, 1000);
+    } else {
+      showToast("Payment session expired. Please refresh the page.", true);
     }
   }
   updateTimer();
 
+  // Load payment settings
   get(ref(db, "settings")).then((snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.val();
       upiId = data.upi;
       amount = data.amount;
       qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-      payButton.innerText = `PAY ₹${amount}`;
-      amountElem.innerText = `₹${amount}`;
+      payButton.innerHTML = `<i class="fas fa-paper-plane"></i> PAY ₹${amount}`;
+      amountElem.textContent = `₹${amount}`;
     } else {
-      fallback();
+      fallbackSettings();
     }
   }).catch((error) => {
-    fallback();
+    fallbackSettings();
   });
 
-  function fallback() {
+  function fallbackSettings() {
     upiId = "in99softdev78@upi";
     amount = "299";
-    amountElem.innerText = `₹${amount}`;
+    amountElem.textContent = `₹${amount}`;
     qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-    payButton.innerText = `PAY ₹${amount}`;
-    showToast("Firebase config not found. Using fallback QR.");
+    payButton.innerHTML = `<i class="fas fa-paper-plane"></i> PAY ₹${amount}`;
+    showToast("Using fallback payment settings", true);
 
     push(ref(db, "fallbackLogs"), {
       date: new Date().toLocaleString(),
-      reason: "Missing settings data for QR",
+      reason: "Missing settings data",
       userAgent: navigator.userAgent
     });
   }
 
-document.getElementById("confirmPaymentBtn").addEventListener("click", () => {
-  const utr = document.getElementById("validUtr").value.trim();
-  if (!utr || utr.length < 12) {
-    showToast("Enter a valid UTR (min 12 chars)");
-    return;
-  }
-
-  const date = new Date().toLocaleString();
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const uid = user.uid;
-      const data = {
-        uid,
-        utr,
-        amount: amount,
-        app: "UPI",
-        date,
-        status: "pending"
-      };
-
-      push(ref(db, "transactions"), data)
-        .then(() => {
-          showToast("Transaction submited to confirmation");
-        })
-        .catch((err) => {
-          console.error("Error saving UTR:", err);
-          showToast("Failed to transaction submit. Try again.");
-        });
-    } else {
-      showToast("User not logged in");
+  // Confirm payment handler
+  confirmPaymentBtn.addEventListener("click", () => {
+    const utr = document.getElementById("validUtr").value.trim();
+    if (!utr || utr.length < 12) {
+      showToast("Please enter a valid UTR (minimum 12 characters)", true);
+      return;
     }
-  });
-});
 
+    const date = new Date().toLocaleString();
+    const loadingText = confirmPaymentBtn.innerHTML;
+    confirmPaymentBtn.innerHTML = `<span class="loader"></span> Processing...`;
+    confirmPaymentBtn.disabled = true;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        const data = {
+          uid,
+          utr,
+          amount: amount,
+          app: "UPI",
+          date,
+          status: "pending"
+        };
+
+        push(ref(db, "transactions"), data)
+          .then(() => {
+            showToast("Payment submitted for verification");
+            document.getElementById("validUtr").value = "";
+          })
+          .catch((err) => {
+            console.error("Error saving transaction:", err);
+            showToast("Failed to submit payment. Please try again.", true);
+          })
+          .finally(() => {
+            confirmPaymentBtn.innerHTML = loadingText;
+            confirmPaymentBtn.disabled = false;
+          });
+      } else {
+        showToast("Please login to confirm payment", true);
+        confirmPaymentBtn.innerHTML = loadingText;
+        confirmPaymentBtn.disabled = false;
+      }
+    });
+  });
+
+  // Pay with UPI app handler
   payButton.addEventListener("click", () => {
     const app = document.querySelector('input[name="upiApp"]:checked').value;
-    const utr = utrInput.value.trim() || "-";
+    const utr = document.getElementById("validUtr").value.trim() || "-";
     const date = new Date().toLocaleString();
 
     let pkg = "";
@@ -287,6 +517,7 @@ document.getElementById("confirmPaymentBtn").addEventListener("click", () => {
       case "paytm": pkg = "net.one97.paytm"; break;
     }
 
+    // Save transaction record
     push(ref(db, "transactions"), {
       amount,
       app,
@@ -301,31 +532,30 @@ document.getElementById("confirmPaymentBtn").addEventListener("click", () => {
     if (isMobile) {
       const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
       window.location.href = intent;
-      setTimeout(() => showToast("If app didn’t open, try scanning the QR."), 3000);
+      setTimeout(() => showToast("If the app didn't open, please scan the QR code"), 3000);
     } else {
-      showToast("Please use a mobile device to make payment.");
+      showToast("Please use a mobile device to make payment", true);
     }
   });
 
-  loader.style.display = "none";
-
+  // Payment status listener
   onValue(ref(db, "paymentStatus"), (snap) => {
     const status = snap.val();
     if (status === "success") {
-      loader.style.display = "none";
-      document.querySelector(".status").innerHTML = `<span style="color:green;">Payment Received</span>`;
-      emailjs.init("nOjIf5EIBm9sEtevk");
-      emailjs.send("service_c8leeap", "template_fd2fm3r", {
-        to_name: "MODX",
-        amount,
-        date: new Date().toLocaleString()
-      });
-      showToast("Payment successful!");
+      document.querySelector(".status-text").innerHTML = `
+        <span style="color: var(--success); font-weight: 600;">
+          <i class="fas fa-check-circle"></i> Payment Received
+        </span>
+      `;
+      showToast("Payment successful! Redirecting...");
       setTimeout(() => window.location.href = "/success.html", 2000);
     } else if (status === "failed") {
-      loader.style.display = "none";
-      document.querySelector(".status").innerHTML = `<span style="color:red;">Payment Failed</span>`;
-      showToast("Payment failed.");
+      document.querySelector(".status-text").innerHTML = `
+        <span style="color: var(--danger); font-weight: 600;">
+          <i class="fas fa-times-circle"></i> Payment Failed
+        </span>
+      `;
+      showToast("Payment failed. Please try again.", true);
     }
   });
 </script>
