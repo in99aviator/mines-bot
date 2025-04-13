@@ -92,23 +92,36 @@ const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
   // -------------------- Auth Guard --------------------
-firebase.auth().onAuthStateChanged(function(user) {
+    onAuthStateChanged(auth, (user) => {
+      const loadingOverlay = document.getElementById("loadingOverlay");
       if (user) {
+        loadingOverlay.style.display = "flex";
         const uid = user.uid;
-        const userRef = ref(db, 'users/' + uid);
-
-        // Listen for live status change
-        onValue(userRef, (snapshot) => {
+        const userRef = ref(db, "users/" + uid);
+        get(userRef).then(snapshot => {
           if (snapshot.exists()) {
             const status = snapshot.val().status;
-            if (status === 'active') {
-              window.location.href = 'index.html';
+            if (status === "active") {
+              loadingOverlay.innerText = "Redirecting to login...";
+              setTimeout(() => window.location.href = "splash.html", 1000);
+            } else if (status === "blocked") {
+              // already running block page
+              loadingOverlay.style.display = "none";
+            } else {
+              loadingOverlay.innerText = "Redirecting to payment page...";
+              setTimeout(() => window.location.href = "buy.html", 1000);
             }
+          } else {
+            loadingOverlay.innerText = "Redirecting to login...";
+            setTimeout(() => window.location.href = "splash.html", 1000);
           }
+        }).catch(() => {
+          loadingOverlay.innerText = "Something went wrong. Redirecting...";
+          setTimeout(() => window.location.href = "splash.html", 1000);
         });
       } else {
-        // Not logged in, redirect to login
-        window.location.href = "auth.html";
+        loadingOverlay.innerText = "Checking session...";
+        setTimeout(() => window.location.href = "splash.html", 1000);
       }
     });
   </script>
