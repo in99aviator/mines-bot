@@ -12,7 +12,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.database();
+const database = firebase.database();
 
 // DOM Elements
 const loaderOverlay = document.getElementById('loaderOverlay');
@@ -51,28 +51,79 @@ function closeDialog() {
   dialogOverlay.classList.remove('active');
 }
 
-// Generate signal
-function generateSignal() {
-  auth.onAuthStateChanged(user => {
+// Check user authentication state
+function checkAuthState() {
+  auth.onAuthStateChanged((user) => {
     if (user) {
-      const uid = user.uid;
-      db.ref("users/" + uid + "/status").once("value").then(snapshot => {
-        const status = snapshot.val();
-        if (status === "active") {
-          runSignalLogic();
-        } else if (status === "blocked") {
-          window.location.href = "blocked.html";
-        } else {
-          window.location.href = "plans.html";
-        }
-      }).catch(error => {
-        console.error("Error checking status:", error);
-        showDialog("Error", "Failed to check user status");
-      });
+      // User is signed in
+      checkUserStatus(user.uid);
     } else {
+      // No user is signed in
       window.location.href = "auth.html";
     }
   });
+}
+
+// Check user status in database
+function checkUserStatus(uid) {
+  database.ref('users/' + uid).once('value')
+    .then((snapshot) => {
+      const userData = snapshot.val();
+      if (!userData) {
+        showDialog("Error", "User data not found");
+        auth.signOut();
+        return;
+      }
+
+      const status = userData.status;
+      
+      if (status === "blocked") {
+        window.location.href = "blocked.html";
+      } else if (status !== "active") {
+        window.location.href = "plans.html";
+      }
+      // If status is active, continue with the app
+    })
+    .catch((error) => {
+      console.error("Error checking user status:", error);
+      showDialog("Error", "Failed to check user status");
+    });
+}
+
+// Generate signal
+function generateSignal() {
+  const user = auth.currentUser;
+  
+  if (!user) {
+    window.location.href = "auth.html";
+    return;
+  }
+
+  // Show loading state
+  const originalText = signalBtn.innerHTML;
+  signalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+  signalBtn.disabled = true;
+
+  database.ref('users/' + user.uid + '/status').once('value')
+    .then((snapshot) => {
+      const status = snapshot.val();
+      
+      if (status === "active") {
+        runSignalLogic();
+      } else if (status === "blocked") {
+        window.location.href = "blocked.html";
+      } else {
+        window.location.href = "plans.html";
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking status:", error);
+      showDialog("Error", "Failed to verify account status");
+    })
+    .finally(() => {
+      signalBtn.innerHTML = originalText;
+      signalBtn.disabled = false;
+    });
 }
 
 // Run signal logic
@@ -140,7 +191,9 @@ closeBtn.addEventListener('click', closeDialog);
 // Initialize the app when page loads
 window.addEventListener('load', () => {
   initializeGrid();
+  checkAuthState();
+  
   setTimeout(() => {
     loaderOverlay.classList.add('hidden');
-  }, 100);
+  }, 1000);
 });
