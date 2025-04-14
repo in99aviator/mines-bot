@@ -70,7 +70,7 @@ function generateSignal() {
         showDialog("Error", "Failed to check user status");
       });
     } else {
-      window.location.href = "login.html";
+      window.location.href = "auth.html";
     }
   });
 }
@@ -142,5 +142,5 @@ window.addEventListener('load', () => {
   initializeGrid();
   setTimeout(() => {
     loaderOverlay.classList.add('hidden');
-  }, 1000);
+  }, 100);
 });
