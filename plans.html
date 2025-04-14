@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mines Bot AI - Premium Plans</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --dark: #1a1a2e;
+      --darker: #16213e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --white: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--darker), var(--dark));
+      color: var(--light);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .title {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      background: linear-gradient(to right, var(--primary-light), var(--success));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .plans-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .plan-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 30px;
+      transition: all 0.3s;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .plan-card.featured {
+      border: 1px solid var(--primary);
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(67, 97, 238, 0.2);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: 15px;
+      right: -30px;
+      background: var(--warning);
+      color: var(--dark);
+      padding: 5px 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transform: rotate(45deg);
+      width: 120px;
+      text-align: center;
+    }
+
+    .plan-header {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .plan-name {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: white;
+    }
+
+    .plan-description {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      min-height: 40px;
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 5px;
+    }
+
+    .price-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      line-height: 1;
+    }
+
+    .price-duration {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-left: 5px;
+      margin-bottom: 5px;
+    }
+
+    .price-save {
+      color: var(--success);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 30px;
+    }
+
+    .plan-features li {
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .plan-features li i {
+      margin-right: 10px;
+      font-size: 0.9rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .feature-available {
+      color: #4ade80;
+    }
+
+    .feature-unavailable {
+      color: var(--danger);
+      opacity: 0.6;
+    }
+
+    .select-plan {
+      width: 100%;
+      padding: 15px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
+    }
+
+    .select-plan:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+    }
+
+    .featured-btn {
+      background: linear-gradient(135deg, var(--warning), #f3722c);
+    }
+
+    .featured-btn:hover {
+      box-shadow: 0 8px 20px rgba(248, 150, 30, 0.4);
+    }
+
+    .payment-methods {
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .payment-text {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .payment-icons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .guarantee-badge {
+      display: inline-block;
+      background: rgba(76, 201, 240, 0.1);
+      border: 1px solid var(--success);
+      border-radius: 20px;
+      padding: 8px 20px;
+      margin-top: 30px;
+      font-size: 0.85rem;
+      color: var(--success);
+    }
+
+    @media (max-width: 992px) {
+      .plans-container {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .plan-card.featured {
+        order: -1;
+        grid-column: span 2;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        margin-bottom: 30px;
+      }
+      
+      .title {
+        font-size: 2rem;
+      }
+      
+      .plans-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .plan-card.featured {
+        grid-column: span 1;
+      }
+      
+      .payment-icons {
+        font-size: 1.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 30px 15px;
+      }
+      
+      .title {
+        font-size: 1.8rem;
+      }
+      
+      .plan-card {
+        padding: 25px 20px;
+      }
+      
+      .price-amount {
+        font-size: 2.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">Premium Subscription Plans</h1>
+      <p class="subtitle">Unlock the full potential of Mines Bot AI with our exclusive plans</p>
+    </div>
+    
+    <div class="plans-container">
+      <!-- Basic Plan -->
+      <div class="plan-card">
+        <div class="plan-header">
+          <h3 class="plan-name">Starter</h3>
+          <p class="plan-description">Perfect for beginners who want to test the bot</p>
+          <div class="plan-price">
+            <span class="price-amount">$49</span>
+            <span class="price-duration">/month</span>
+          </div>
+          <span class="price-save">Save 10% with annual plan</span>
+        </div>
+        <ul class="plan-features">
+          <li><i class="fas fa-check feature-available"></i> 85-90% Accuracy Rate</li>
+          <li><i class="fas fa-check feature-available"></i> 5 Signals Per Day</li>
+          <li><i class="fas fa-check feature-available"></i> Basic Support</li>
+          <li><i class="fas fa-check feature-available"></i> 1 Device Connection</li>
+          <li><i class="fas fa-times feature-unavailable"></i> No Custom Strategies</li>
+          <li><i class="fas fa-times feature-unavailable"></i> No VIP Channels</li>
+        </ul>
+        <button class="select-plan" onclick="selectPlan('starter', 49)">Get Started</button>
+      </div>
+      
+      <!-- Pro Plan (Featured) -->
+      <div class="plan-card featured">
+        <div class="popular-badge">MOST POPULAR</div>
+        <div class="plan-header">
+          <h3 class="plan-name">Professional</h3>
+          <p class="plan-description">For serious players who want consistent profits</p>
+          <div class="plan-price">
+            <span class="price-amount">$99</span>
+            <span class="price-duration">/month</span>
+          </div>
+          <span class="price-save">Save 15% with annual plan</span>
+        </div>
+        <ul class="plan-features">
+          <li><i class="fas fa-check feature-available"></i> 92-96% Accuracy Rate</li>
+          <li><i class="fas fa-check feature-available"></i> 15 Signals Per Day</li>
+          <li><i class="fas fa-check feature-available"></i> Priority Support</li>
+          <li><i class="fas fa-check feature-available"></i> 3 Device Connections</li>
+          <li><i class="fas fa-check feature-available"></i> Basic Strategy Customization</li>
+          <li><i class="fas fa-check feature-available"></i> VIP Signals Channel</li>
+        </ul>
+        <button class="select-plan featured-btn" onclick="selectPlan('professional', 99)">Get Professional</button>
+      </div>
+      
+      <!-- Premium Plan -->
+      <div class="plan-card">
+        <div class="plan-header">
+          <h3 class="plan-name">Enterprise</h3>
+          <p class="plan-description">For high rollers and professional players</p>
+          <div class="plan-price">
+            <span class="price-amount">$199</span>
+            <span class="price-duration">/month</span>
+          </div>
+          <span class="price-save">Save 20% with annual plan</span>
+        </div>
+        <ul class="plan-features">
+          <li><i class="fas fa-check feature-available"></i> 97-99% Accuracy Rate</li>
+          <li><i class="fas fa-check feature-available"></i> Unlimited Signals</li>
+          <li><i class="fas fa-check feature-available"></i> 24/7 VIP Support</li>
+          <li><i class="fas fa-check feature-available"></i> 10 Device Connections</li>
+          <li><i class="fas fa-check feature-available"></i> Full Strategy Customization</li>
+          <li><i class="fas fa-check feature-available"></i> All VIP Channels + Private Group</li>
+        </ul>
+        <button class="select-plan" onclick="selectPlan('enterprise', 199)">Get Enterprise</button>
+      </div>
+    </div>
+    
+    <div class="payment-methods">
+      <p class="payment-text">We accept all major payment methods:</p>
+      <div class="payment-icons">
+        <i class="fab fa-cc-visa"></i>
+        <i class="fab fa-cc-mastercard"></i>
+        <i class="fab fa-cc-paypal"></i>
+        <i class="fab fa-bitcoin"></i>
+        <i class="fas fa-money-bill-wave"></i>
+      </div>
+      <div class="guarantee-badge">
+        <i class="fas fa-shield-alt"></i> 7-Day Money Back Guarantee
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Select plan and redirect to buy.html with plan details
+    function selectPlan(planName, planPrice) {
+      // Store plan details in localStorage
+      localStorage.setItem('selectedPlan', JSON.stringify({
+        name: planName,
+        price: planPrice,
+        date: new Date().toISOString()
+      }));
+      
+      // Redirect to buy.html
+      window.location.href = 'buy.html';
+    }
+  </script>
+</body>
+</html>
