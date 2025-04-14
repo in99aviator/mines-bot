@@ -176,9 +176,64 @@
     .success-container {
       animation: fadeIn 0.6s ease-out;
     }
+
+    .toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, bottom 0.4s ease;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.toast.show {
+  opacity: 1;
+  bottom: 50px;
+  pointer-events: auto;
+}
+
+.toast.success {
+  background: #28a745;
+}
+
+.toast.warning {
+  background: #dc3545;
+}
+
+.toast.info {
+  background: #007bff;
+}
+
+.toast i {
+  animation: pop 0.3s ease;
+  font-size: 1.2rem;
+}
+
+@keyframes pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
   </style>
 </head>
 <body>
+
+  <div id="toast" class="toast">
+  <i id="toastIcon" class="fas fa-info-circle"></i>
+  <span id="toastMessage">Message</span>
+</div>
+
+<audio id="toastSound" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" preload="auto"></audio>
 
   <!-- Loader & Toast -->
 <div id="statusLoader" style="display: none;">
@@ -243,42 +298,102 @@
   const loader = document.getElementById('statusLoader');
   const statusMessage = document.getElementById('statusMessage');
 
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
+    authDomain: "pg-data-ed1c2.firebaseapp.com",
+    databaseURL: "https://pg-data-ed1c2-default-rtdb.firebaseio.com",
+    projectId: "pg-data-ed1c2",
+    storageBucket: "pg-data-ed1c2.firebasestorage.app",
+    messagingSenderId: "884858492190",
+    appId: "1:884858492190:web:67b7606ff790064ef3250f"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
+
+  const loader = document.getElementById('statusLoader');
+  const statusMessage = document.getElementById('statusMessage');
+
   onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loader.style.display = "block";
-    statusMessage.textContent = "Checking your account status...";
+    if (user) {
+      loader.style.display = "block";
+      statusMessage.textContent = "Checking your account status...";
 
-    const uid = user.uid;
+      const uid = user.uid;
 
-    // Check user status
-    const statusRef = ref(database, `users/${uid}/status`);
-    onValue(statusRef, (snapshot) => {
-      const status = snapshot.val();
+      // Fetch user status
+      const statusRef = ref(database, `users/${uid}/status`);
+      onValue(statusRef, (snapshot) => {
+        const status = snapshot.val();
 
-      if (status === "active") {
-        statusMessage.textContent = "Status: Active. Redirecting to dashboard...";
-        setTimeout(() => window.location.href = "index.html", 2000);
-      } else if (status === "blocked") {
-        statusMessage.textContent = "Status: Blocked. Redirecting to blocked page...";
-        setTimeout(() => window.location.href = "blocked.html", 2000);
-      }
-    });
+        if (status === "active") {
+          statusMessage.textContent = "Status: Active. Redirecting to dashboard...";
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 2000);
+        } else if (status === "blocked") {
+          statusMessage.textContent = "Status: Blocked. Redirecting to blocked page...";
+          setTimeout(() => {
+            window.location.href = "blocked.html";
+          }, 2000);
+        } else {
+          statusMessage.textContent = `Status: ${status}`;
+        }
+      });
 
-   // Inside onAuthStateChanged
-const settingsRef = ref(database, 'settings/amount');
-onValue(settingsRef, (snapshot) => {
-  const amount = snapshot.val();
-  document.getElementById('amount').textContent = amount ? `₹${amount}` : '₹0.00';
-});
+      // Fetch amount from settings
+      const settingsRef = ref(database, 'settings/amount');
+      onValue(settingsRef, (snapshot) => {
+        const amount = snapshot.val();
+        document.getElementById('amount').textContent = amount ? `₹${amount}` : '₹0.00';
+      });
 
-// Also update other elements like txn ID and date
-document.getElementById('txnId').textContent = 'TXN-' + Math.floor(Math.random() * 1000000);
-document.getElementById('date').textContent = new Date().toLocaleString();
+      // Set transaction ID and date
+      document.getElementById('txnId').textContent = 'TXN-' + Math.floor(Math.random() * 1000000);
+      document.getElementById('date').textContent = new Date().toLocaleString();
 
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+</script>
+
+    function showToast(message, type = "info") {
+  const toast = document.getElementById("toast");
+  const toastIcon = document.getElementById("toastIcon");
+  const toastMessage = document.getElementById("toastMessage");
+  const toastSound = document.getElementById("toastSound");
+
+  // Reset classes
+  toast.className = "toast";
+  toast.classList.add("show", type);
+
+  // Set message and icon based on type
+  toastMessage.textContent = message;
+
+  if (type === "success") {
+    toastIcon.className = "fas fa-check-circle";
+  } else if (type === "warning") {
+    toastIcon.className = "fas fa-exclamation-triangle";
   } else {
-    window.location.href = "login.html";
+    toastIcon.className = "fas fa-info-circle";
   }
-});
+
+  // Play sound
+  toastSound.currentTime = 0;
+  toastSound.play();
+
+  // Auto hide
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
   </script>
 </body>
 </html>
