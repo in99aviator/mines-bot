@@ -46,24 +46,6 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
-    .logout-btn {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .logout-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
     /* Loading Overlay */
     .loading-overlay {
       position: fixed;
@@ -412,9 +394,6 @@
 <body>
   <!-- Toolbar -->
   <div class="toolbar">• Mines Bot AI •</div>
-  <button id="logoutBtn" class="logout-btn">
-    <i class="fas fa-sign-out-alt"></i> Logout
-  </button>
   
   <!-- Loading Overlay -->
   <div id="loadingOverlay" class="loading-overlay">
@@ -427,8 +406,6 @@
     <div class="status-text" id="status">
       <i class="fas fa-check-circle"></i> Bot Status: Connected to Server
     </div>
-
-    <h1 class="main-title">Mines Bot - 100% Working Algorithm 💰</h1>
     
     <h2 class="subtitle">VIP Premium Signals</h2>
 
