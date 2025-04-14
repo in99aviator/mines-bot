@@ -198,34 +198,90 @@
     }
 
     .payment-methods {
-      text-align: center;
-      margin-top: 50px;
-    }
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 25px 0;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-    .payment-text {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 0.9rem;
-      margin-bottom: 15px;
-    }
+.payment-text {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 15px;
+  font-size: 14px;
+}
 
-    .payment-icons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      font-size: 2rem;
-      color: rgba(255, 255, 255, 0.8);
-    }
+.payment-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
 
-    .guarantee-badge {
-      display: inline-block;
-      background: rgba(76, 201, 240, 0.1);
-      border: 1px solid var(--success);
-      border-radius: 20px;
-      padding: 8px 20px;
-      margin-top: 30px;
-      font-size: 0.85rem;
-      color: var(--success);
-    }
+.payment-icons img {
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(20%) brightness(1.1);
+  transition: all 0.3s ease;
+  opacity: 0.9;
+}
+
+.payment-icons img:hover {
+  filter: grayscale(0%) brightness(1.2);
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.guarantee-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(76, 201, 240, 0.1);
+  color: #4cc9f0;
+  padding: 8px 15px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(76, 201, 240, 0.3);
+}
+
+.guarantee-badge i {
+  color: #4cc9f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .payment-icons {
+    gap: 12px;
+  }
+  
+  .payment-icons img {
+    height: 25px;
+  }
+  
+  .guarantee-badge {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-icons {
+    gap: 8px;
+  }
+  
+  .payment-icons img {
+    height: 22px;
+  }
+  
+  .payment-text {
+    font-size: 13px;
+  }
+}
 
     .loading {
       display: flex;
@@ -315,18 +371,18 @@
     </div>
     
     <div class="payment-methods">
-      <p class="payment-text">We accept all major payment methods:</p>
-      <div class="payment-icons">
-        <i class="fab fa-cc-visa"></i>
-        <i class="fab fa-cc-mastercard"></i>
-        <i class="fab fa-cc-paypal"></i>
-        <i class="fab fa-bitcoin"></i>
-        <i class="fas fa-money-bill-wave"></i>
-      </div>
-      <div class="guarantee-badge">
-        <i class="fas fa-shield-alt"></i> 7-Day Money Back Guarantee
-      </div>
-    </div>
+  <p class="payment-text">We accept all major payment methods:</p>
+  <div class="payment-icons">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/PhonePe_Logo.svg/1200px-PhonePe_Logo.svg.png" alt="PhonePe">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Google_Pay_%28GPay%29_Logo.svg/512px-Google_Pay_%28GPay%29_Logo.svg.png" alt="Google Pay">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Amazon_Pay_logo.svg/1200px-Amazon_Pay_logo.svg.png" alt="Amazon Pay">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Bhim_logo.svg/1200px-Bhim_logo.svg.png" alt="BHIM UPI">
+  </div>
+  <div class="guarantee-badge">
+    <i class="fas fa-shield-alt"></i> 7-Day Money Back Guarantee
+  </div>
+</div>
   </div>
 
   <!-- Firebase SDK -->
