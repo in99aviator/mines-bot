@@ -74,6 +74,25 @@
       padding: 1.5rem;
     }
 
+    .plan-info {
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+
+    .plan-name {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-price {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
     .section-title {
       font-size: 1rem;
       font-weight: 600;
@@ -311,6 +330,12 @@
   </div>
 
   <div class="payment-body">
+    <!-- Plan Info Section -->
+    <div class="plan-info" id="planInfo">
+      <div class="plan-name" id="planName">Loading plan...</div>
+      <div class="plan-price" id="planPrice">₹--</div>
+    </div>
+
     <h3 class="section-title">
       <i class="fas fa-qrcode"></i> Scan QR Code to Pay
     </h3>
@@ -396,20 +421,22 @@
   const payButton = document.getElementById("payButton");
   const confirmPaymentBtn = document.getElementById("confirmPaymentBtn");
   const toast = document.getElementById("toast");
+  const planNameElem = document.getElementById("planName");
+  const planPriceElem = document.getElementById("planPrice");
 
-  let upiId = '', amount = '';
-
-  function showToast(message, isError = false) {
-    toast.className = isError ? "toast-error" : "toast-success";
-    toast.querySelector('.toast-icon').className = isError 
-      ? "fas fa-exclamation-circle toast-icon" 
-      : "fas fa-check-circle toast-icon";
-    toast.querySelector('.toast-content').textContent = message;
-    toast.classList.add("show");
-    
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 3000);
+  // Get selected plan from localStorage
+  const selectedPlan = JSON.parse(localStorage.getItem('selectedPlan'));
+  
+  // Display plan info
+  if (selectedPlan) {
+    planNameElem.textContent = selectedPlan.name;
+    planPriceElem.textContent = `₹${selectedPlan.price}`;
+    amountElem.textContent = `₹${selectedPlan.price}`;
+  } else {
+    planNameElem.textContent = "No plan selected";
+    planPriceElem.textContent = "₹0";
+    showToast("No plan selected. Redirecting...", true);
+    setTimeout(() => window.location.href = "plans.html", 2000);
   }
 
   let timeInSeconds = 900;
@@ -427,42 +454,55 @@
   }
   updateTimer();
 
-  // Load payment settings
-  get(ref(db, "settings")).then((snapshot) => {
+  function showToast(message, isError = false) {
+    toast.className = isError ? "toast-error" : "toast-success";
+    toast.querySelector('.toast-icon').className = isError 
+      ? "fas fa-exclamation-circle toast-icon" 
+      : "fas fa-check-circle toast-icon";
+    toast.querySelector('.toast-content').textContent = message;
+    toast.classList.add("show");
+    
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
+
+  // Load UPI ID from Firebase and generate QR
+  get(ref(db, "settings/upi")).then((snapshot) => {
     if (snapshot.exists()) {
-      const data = snapshot.val();
-      upiId = data.upi;
-      amount = data.amount;
-      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-      payButton.innerHTML = `<i class="fas fa-paper-plane"></i> PAY ₹${amount}`;
-      amountElem.textContent = `₹${amount}`;
+      const upiId = snapshot.val();
+      
+      if (selectedPlan) {
+        const amount = selectedPlan.price;
+        const note = `Payment for ${selectedPlan.name}`;
+        
+        // Generate UPI payment link
+        const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+        
+        // Generate QR code
+        qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiLink)}`;
+        
+        // Update pay button
+        payButton.innerHTML = `<i class="fas fa-paper-plane"></i> PAY ₹${amount}`;
+      }
     } else {
-      fallbackSettings();
+      showToast("Payment gateway not configured", true);
     }
   }).catch((error) => {
-    fallbackSettings();
+    console.error("Error fetching UPI ID:", error);
+    showToast("Failed to load payment details", true);
   });
-
-  function fallbackSettings() {
-    upiId = "in99softdev78@upi";
-    amount = "299";
-    amountElem.textContent = `₹${amount}`;
-    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-    payButton.innerHTML = `<i class="fas fa-paper-plane"></i> PAY ₹${amount}`;
-    showToast("Using fallback payment settings", true);
-
-    push(ref(db, "fallbackLogs"), {
-      date: new Date().toLocaleString(),
-      reason: "Missing settings data",
-      userAgent: navigator.userAgent
-    });
-  }
 
   // Confirm payment handler
   confirmPaymentBtn.addEventListener("click", () => {
     const utr = document.getElementById("validUtr").value.trim();
     if (!utr || utr.length < 12) {
       showToast("Please enter a valid UTR (minimum 12 characters)", true);
+      return;
+    }
+
+    if (!selectedPlan) {
+      showToast("No plan selected", true);
       return;
     }
 
@@ -477,7 +517,8 @@
         const data = {
           uid,
           utr,
-          amount: amount,
+          amount: selectedPlan.price,
+          plan: selectedPlan.name,
           app: "UPI",
           date,
           status: "pending"
@@ -520,28 +561,34 @@
 
     // Save transaction record
     push(ref(db, "transactions"), {
-      amount,
+      amount: selectedPlan.price,
+      plan: selectedPlan.name,
       app,
       date,
       status: "pending",
-      utr
+      utr,
     });
 
-    const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${amount}&cu=INR`;
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    get(ref(db, "settings/upi")).then((snapshot) => {
+      if (snapshot.exists()) {
+        const upiId = snapshot.val();
+        const upiLink = `upi://pay?pa=${upiId}&pn=MODX TEAM&am=${selectedPlan.price}&cu=INR&tn=${encodeURIComponent(selectedPlan.name)}`;
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    if (isMobile) {
-      const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
-      window.location.href = intent;
-      setTimeout(() => showToast("If the app didn't open, please scan the QR code"), 3000);
-    } else {
-      showToast("Please use a mobile device to make payment", true);
-    }
+        if (isMobile) {
+          const intent = `intent://${upiLink.replace("upi://", "")}#Intent;scheme=upi;package=${pkg};end`;
+          window.location.href = intent;
+          setTimeout(() => showToast("If the app didn't open, please scan the QR code"), 3000);
+        } else {
+          showToast("Please use a mobile device to make payment", true);
+        }
+      }
+    });
   });
 
   // Payment status listener
-  onValue(ref(db, "paymentStatus"), (snap) => {
-    const status = snap.val();
+  onValue(ref(db, "paymentStatus"), (snapshot) => {
+    const status = snapshot.val();
     if (status === "success") {
       document.querySelector(".status-text").innerHTML = `
         <span style="color: var(--success); font-weight: 600;">
@@ -549,7 +596,7 @@
         </span>
       `;
       showToast("Payment successful! Redirecting...");
-      setTimeout(() => window.location.href = "/success.html", 2000);
+      setTimeout(() => window.location.href = "success.html", 2000);
     } else if (status === "failed") {
       document.querySelector(".status-text").innerHTML = `
         <span style="color: var(--danger); font-weight: 600;">
