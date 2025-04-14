@@ -59,7 +59,6 @@
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      display: none;
     }
 
     .loader {
@@ -398,11 +397,11 @@
   <!-- Loading Overlay -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loader"></div>
-    <p style="color:white; margin-top:15px;">Please wait...</p>
+    <p style="color:white; margin-top:15px;">Checking account status...</p>
   </div>
   
   <!-- Main App -->
-  <div class="container">
+  <div class="container" id="appContainer" style="display: none;">
     <div class="status-text" id="status">
       <i class="fas fa-check-circle"></i> Bot Status: Connected to Server
     </div>
@@ -445,7 +444,7 @@
 
     <!-- Action Buttons -->
     <div class="buttons">
-      <button onclick="generateSignal()">
+      <button onclick="generateSignal()" id="signalBtn">
         <i class="fas fa-bolt"></i> Get Signal
       </button>
       <button onclick="openDialog()" class="open-btn">
@@ -460,7 +459,7 @@
     <div class="dialog-overlay" id="dialogOverlay">
       <div class="dialog-box">
         <h2>Mines Bot AI Status</h2>
-        <p>
+        <p id="dialogMessage">
           <i class="fas fa-check-circle" style="color: var(--success);"></i> 
           Bot AI is successfully connected to our premium servers!
           <br><br>
@@ -483,7 +482,32 @@
     </button>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+
   <script>
+    // Firebase configuration - replace with your actual config
+    const firebaseConfig = {
+      apiKey: "AIzaSyABC123XYZ456DEF789GHI",
+      authDomain: "your-project-id.firebaseapp.com",
+      databaseURL: "https://your-project-id.firebaseio.com",
+      projectId: "your-project-id",
+      storageBucket: "your-project-id.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abc123def456ghi789jkl"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // User state variables
+    let userStatus = null;
+    let currentUser = null;
+
     // Initialize grid
     function initializeGrid() {
       const grid = document.getElementById('grid');
@@ -493,13 +517,18 @@
       for (let i = 0; i < 25; i++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-        cell.innerHTML = '';
+        cell.innerHTML = '💎';
         grid.appendChild(cell);
       }
     }
     
     // Generate signal (show bombs immediately)
     function generateSignal() {
+      if (userStatus !== "active") {
+        showDialog("Access Denied", "Your account is not active. Please contact support.");
+        return;
+      }
+      
       const mineCount = parseInt(document.getElementById('mineCount').value);
       const cells = document.querySelectorAll('.cell');
       
@@ -517,7 +546,7 @@
           minePositions.push(pos);
           cells[pos].classList.add('mine');
           cells[pos].innerHTML = '💣';
-          cells[pos].style.color = '#f72585'; // Red color for bombs
+          cells[pos].style.color = '#f72585';
         }
       }
       
@@ -526,12 +555,24 @@
         if (!minePositions.includes(index)) {
           cell.classList.add('safe');
           cell.innerHTML = '💎';
-          cell.style.color = '#4ade80'; // Green color for diamonds
+          cell.style.color = '#4ade80';
         }
       });
       
       // Show success message
       showDialog('Signal Generated', `${mineCount} mines placed successfully! Avoid the red bomb positions for maximum profit.`);
+      
+      // Log this signal generation in database
+      if (currentUser) {
+        const signalData = {
+          timestamp: firebase.database.ServerValue.TIMESTAMP,
+          mineCount: mineCount,
+          positions: minePositions
+        };
+        
+        database.ref('signals/' + currentUser.uid).push(signalData)
+          .catch(error => console.error("Error saving signal:", error));
+      }
     }
     
     // Dialog functions
@@ -546,7 +587,7 @@
     function showDialog(title, message) {
       const dialog = document.getElementById('dialogOverlay');
       dialog.querySelector('h2').textContent = title;
-      dialog.querySelector('p').innerHTML = message;
+      document.getElementById('dialogMessage').innerHTML = message;
       dialog.classList.add('active');
     }
     
@@ -566,16 +607,49 @@
     function redirectToJoin() {
       window.open('https://t.me/soft99dev', '_blank');
     }
-    
-    // Initialize on load
-    window.onload = function() {
-      initializeGrid();
-      updateStatus();
-    };
 
-// Modify your existing join box to show subscription plans instead
-// Show subscription after 5 seconds
-setTimeout(() => window.location.href = "plans.html", 4000);
+    // Check authentication state
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        currentUser = user;
+        checkUserStatus(user.uid);
+      } else {
+        // Redirect to login if not authenticated
+        window.location.href = "login.html";
+      }
+    });
+
+    // Check user status in database
+    function checkUserStatus(uid) {
+      database.ref('users/' + uid).once('value').then((snapshot) => {
+        const userData = snapshot.val();
+        if (!userData) {
+          // User not found in database
+          showDialog("Error", "Your account was not found in our system.");
+          return;
+        }
+
+        userStatus = userData.status;
+        
+        if (userStatus === "blocked") {
+          window.location.href = "blocked.html";
+        } else if (userStatus === "active") {
+          // Enable the app functionality
+          document.getElementById('appContainer').style.display = 'block';
+          document.getElementById('loadingOverlay').style.display = 'none';
+          initializeGrid();
+          updateStatus();
+        } else {
+          showDialog("Account Pending", "Your account is pending activation. Please contact support.");
+        }
+      }).catch((error) => {
+        console.error("Error checking user status:", error);
+        showDialog("Error", "Could not verify your account status. Please try again later.");
+      });
+    }
+
+    // Initialize on load - now handled by auth state change
+    document.getElementById('loadingOverlay').style.display = 'flex';
   </script>
 </body>
 </html>
