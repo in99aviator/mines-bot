@@ -482,12 +482,12 @@
     </button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
-  <script>
-    <script>
+
+<script>
   // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
@@ -509,18 +509,18 @@
   let currentUser = null;
 
   // Show loader overlay
-function showLoader(message = "Checking Account Verification.") {
-  const loader = document.getElementById('loadingOverlay');
-  loader.style.display = 'flex';
-  loader.querySelector('p').textContent = message;
-}
+  function showLoader(message = "Checking Account Verification.") {
+    const loader = document.getElementById('loadingOverlay');
+    loader.style.display = 'flex';
+    loader.querySelector('p').textContent = message;
+  }
 
-// Hide loader overlay
-function hideLoader() {
-  const loader = document.getElementById('loadingOverlay');
-  loader.style.display = 'none';
-}
-  
+  // Hide loader overlay
+  function hideLoader() {
+    const loader = document.getElementById('loadingOverlay');
+    loader.style.display = 'none';
+  }
+
   // Initialize grid
   function initializeGrid() {
     const grid = document.getElementById('grid');
@@ -535,20 +535,19 @@ function hideLoader() {
 
   // Generate Signal Button
   function generateSignal() {
-    showLoader("Loading Mines Bot...");
+    showLoader("Generating Signal...");
+    
     if (userStatus === "blocked") {
-      // Timeout loader if stuck too long (e.g., 15 seconds)
       setTimeout(() => {
-          hideLoader(); // hide the loader
-          window.location.href = "blocked.html";
-       }, 4000); // 15,000 milliseconds = 15 seconds
-      
+        hideLoader();
+        window.location.href = "blocked.html";
+      }, 4000);
       return;
     } else if (userStatus !== "active") {
       setTimeout(() => {
-          hideLoader(); // hide the loader
-          window.location.href = "plans.html";
-       }, 4000);
+        hideLoader();
+        window.location.href = "plans.html";
+      }, 4000);
       return;
     }
 
@@ -581,6 +580,8 @@ function hideLoader() {
         cell.style.color = '#4ade80';
       }
     });
+
+    hideLoader();
   }
 
   // Show dialog
@@ -613,13 +614,10 @@ function hideLoader() {
 
   // Auth state checker
   auth.onAuthStateChanged((user) => {
-    showLoader("Loading Mines Bot...");
+    showLoader("Verifying Your Session...");
     if (user) {
       currentUser = user;
       checkUserStatus(user.uid);
-      setTimeout(() => {
-          hideLoader();
-       }, 4000);
     } else {
       window.location.href = "auth.html";
     }
@@ -631,6 +629,7 @@ function hideLoader() {
       const userData = snapshot.val();
       if (!userData) {
         showDialog("Error", "Your account was not found in our system.");
+        hideLoader();
         return;
       }
 
@@ -640,7 +639,7 @@ function hideLoader() {
         window.location.href = "blocked.html";
       } else if (userStatus === "active") {
         document.getElementById('appContainer').style.display = 'block';
-        document.getElementById('loadingOverlay').style.display = 'none';
+        hideLoader();
         initializeGrid();
         updateStatus();
       } else {
@@ -650,18 +649,9 @@ function hideLoader() {
     }).catch((error) => {
       console.error("Error checking user status:", error);
       showDialog("Error", "Could not verify your account status. Please try again later.");
+      hideLoader();
     });
   }
-    
-    // Auto hide loader if it takes too long
-setTimeout(() => {
-  const loader = document.getElementById('loadingOverlay');
-  if (loader.style.display === 'flex') {
-    hideLoader();
-    //showDialog("Timeout", "Something went wrong. Please refresh or check your internet.");
-  }
-}, 5000); // 15 seconds
-    
-  </script>
+</script>
 </body>
 </html>
