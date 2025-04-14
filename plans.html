@@ -460,9 +460,9 @@
         console.error("Error fetching plans: ", error);
         // Fallback to default prices
         renderPlans({
-          starter: { price: 449, monthlyPrice: 449, description: "Perfect for beginners who want to test the bot" },
-          professional: { price: 599, monthlyPrice: 599, description: "For serious players who want consistent profits" },
-          enterprise: { price: 1189, monthlyPrice: 1189, description: "For high rollers and professional players" }
+          starter: { price: 259, monthlyPrice: 449, description: "Perfect for beginners who want to test the bot" },
+          professional: { price: 389, monthlyPrice: 599, description: "For serious players who want consistent profits" },
+          enterprise: { price: 599, monthlyPrice: 1189, description: "For high rollers and professional players" }
         });
       }
     }
@@ -519,7 +519,7 @@
       localStorage.setItem('selectedPlan', JSON.stringify({
         name: planName,
         price: planPrice,
-        date: new Date().toISOString()
+        duration: "1 month"
       }));
       window.location.href = 'buy.html';
     }
