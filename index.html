@@ -629,8 +629,8 @@
         } else {
           showDialog("Account Pending", "Your account is pending activation. Please contact support.");
           // Modify your existing join box to show subscription plans instead
-// Show subscription after 5 seconds
-setTimeout(() => window.location.href = "plans.html", 4000);
+         // Show subscription after 5 seconds
+         setTimeout(() => window.location.href = "plans.html", 4000);
         }
       }).catch((error) => {
         console.error("Error checking user status:", error);
@@ -639,7 +639,7 @@ setTimeout(() => window.location.href = "plans.html", 4000);
     }
 
     // Initialize on load - now handled by auth state change
-    document.getElementById('loadingOverlay').style.display = 'flex';
+    
   </script>
 </body>
 </html>
