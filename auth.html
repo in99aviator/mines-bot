@@ -346,17 +346,17 @@
         switch (userData.status) {
           case "active":
             showToast("Login successful! Redirecting...");
-            setTimeout(() => (window.location.href = "index.html"), 1000);
+            setTimeout(() => (window.location.href = "index.html"), 100);
             break;
           case "blocked":
             showToast("Your account is blocked", true);
             await signOut(auth);
-            setTimeout(() => (window.location.href = "blocked.html"), 1000);
+            setTimeout(() => (window.location.href = "blocked.html"), 100);
             break;
           default:
             showToast("Your account is not active", true);
             await signOut(auth);
-            setTimeout(() => (window.location.href = "plans.html"), 1000);
+            setTimeout(() => (window.location.href = "index.html"), 100);
         }
       }
     } catch (error) {
