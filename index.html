@@ -447,7 +447,7 @@
       <button onclick="generateSignal()" id="signalBtn">
         <i class="fas fa-bolt"></i> Get Signal
       </button>
-      <button onclick="openDialog()" class="open-btn">
+      <button onclick="showDialog('Mines Bot AI Status', '<i class=\"fas fa-check-circle\" style=\"color: var(--success);\"></i> Bot AI is successfully connected to our premium servers!<br><br>Current algorithm accuracy: 98.7%')">
         <i class="fas fa-robot"></i> Check Bot
       </button>
       <button onclick="updateStatus()">
@@ -458,7 +458,7 @@
     <!-- Dialog Box -->
     <div class="dialog-overlay" id="dialogOverlay">
       <div class="dialog-box">
-        <h2>Mines Bot AI Status</h2>
+        <h2 id="dialogTitle">Mines Bot AI Status</h2>
         <p id="dialogMessage">
           <i class="fas fa-check-circle" style="color: var(--success);"></i> 
           Bot AI is successfully connected to our premium servers!
@@ -536,57 +536,46 @@
   function generateSignal() {
     showLoader("Generating Signal...");
     
-    if (userStatus === "blocked") {
-      setTimeout(() => {
-        hideLoader();
-        window.location.href = "blocked.html";
-      }, 4000);
-      return;
-    } else if (userStatus !== "active") {
-      setTimeout(() => {
-        hideLoader();
-        window.location.href = "plans.html";
-      }, 4000);
-      return;
-    }
+    // Simulate API call delay
+    setTimeout(() => {
+      hideLoader();
+      
+      const mineCount = parseInt(document.getElementById('mineCount').value);
+      const cells = document.querySelectorAll('.cell');
 
-    const mineCount = parseInt(document.getElementById('mineCount').value);
-    const cells = document.querySelectorAll('.cell');
+      // Reset grid
+      cells.forEach(cell => {
+        cell.classList.remove('mine', 'safe');
+        cell.innerHTML = '';
+      });
 
-    // Reset grid
-    cells.forEach(cell => {
-      cell.classList.remove('mine', 'safe');
-      cell.innerHTML = '';
-    });
-
-    // Place mines
-    const minePositions = [];
-    while (minePositions.length < mineCount) {
-      const pos = Math.floor(Math.random() * 25);
-      if (!minePositions.includes(pos)) {
-        minePositions.push(pos);
-        cells[pos].classList.add('mine');
-        cells[pos].innerHTML = '💣';
-        cells[pos].style.color = '#f72585';
+      // Place mines
+      const minePositions = [];
+      while (minePositions.length < mineCount) {
+        const pos = Math.floor(Math.random() * 25);
+        if (!minePositions.includes(pos)) {
+          minePositions.push(pos);
+          cells[pos].classList.add('mine');
+          cells[pos].innerHTML = '💣';
+          cells[pos].style.color = '#f72585';
+        }
       }
-    }
 
-    // Mark safe
-    cells.forEach((cell, index) => {
-      if (!minePositions.includes(index)) {
-        cell.classList.add('safe');
-        cell.innerHTML = '💎';
-        cell.style.color = '#4ade80';
-      }
-    });
-
-    hideLoader();
+      // Mark safe
+      cells.forEach((cell, index) => {
+        if (!minePositions.includes(index)) {
+          cell.classList.add('safe');
+          cell.innerHTML = '💎';
+          cell.style.color = '#4ade80';
+        }
+      });
+    }, 2000);
   }
 
   // Show dialog
   function showDialog(title, message) {
     const dialog = document.getElementById('dialogOverlay');
-    dialog.querySelector('h2').textContent = title;
+    document.getElementById('dialogTitle').textContent = title;
     document.getElementById('dialogMessage').innerHTML = message;
     dialog.classList.add('active');
   }
@@ -611,46 +600,25 @@
     window.open('https://t.me/soft99dev', '_blank');
   }
 
-  // Auth state checker
-  auth.onAuthStateChanged((user) => {
+  // Simulate authentication check (since we don't have actual auth)
+  function simulateAuthCheck() {
     showLoader("Verifying Your Session...");
-    if (user) {
-      currentUser = user;
-      checkUserStatus(user.uid);
-    } else {
-      window.location.href = "auth.html";
-    }
-  });
-
-  // Check user in DB
-  function checkUserStatus(uid) {
-    database.ref('users/' + uid).once('value').then((snapshot) => {
-      const userData = snapshot.val();
-      if (!userData) {
-        showDialog("Error", "Your account was not found in our system.");
-        hideLoader();
-        return;
-      }
-
-      userStatus = userData.status;
-
-      if (userStatus === "blocked") {
-        window.location.href = "blocked.html";
-      } else if (userStatus === "active") {
-        document.getElementById('appContainer').style.display = 'block';
-        hideLoader();
-        initializeGrid();
-        updateStatus();
-      } else {
-        showDialog("Account Pending", "Your account is pending activation. Redirecting to plans...");
-        setTimeout(() => window.location.href = "plans.html", 4000);
-      }
-    }).catch((error) => {
-      console.error("Error checking user status:", error);
-      showDialog("Error", "Could not verify your account status. Please try again later.");
+    
+    // Simulate authentication delay
+    setTimeout(() => {
+      // For demo purposes, we'll assume the user is authenticated
+      userStatus = "active";
+      document.getElementById('appContainer').style.display = 'block';
       hideLoader();
-    });
+      initializeGrid();
+      updateStatus();
+    }, 2000);
   }
+
+  // Initialize the app
+  window.onload = function() {
+    simulateAuthCheck();
+  };
 </script>
 </body>
 </html>
