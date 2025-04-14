@@ -535,7 +535,7 @@
       // Reset all cells
       cells.forEach(cell => {
         cell.classList.remove('mine', 'safe');
-        cell.innerHTML = '💎';
+        cell.innerHTML = '';
       });
       
       // Place mines randomly
@@ -560,20 +560,7 @@
       });
       
       // Show success message
-      showDialog('Signal Generated', `${mineCount} mines placed successfully! Avoid the red bomb positions for maximum profit.`);
-      
-      // Log this signal generation in database
-      if (currentUser) {
-        const signalData = {
-          timestamp: firebase.database.ServerValue.TIMESTAMP,
-          mineCount: mineCount,
-          positions: minePositions
-        };
-        
-        database.ref('signals/' + currentUser.uid).push(signalData)
-          .catch(error => console.error("Error saving signal:", error));
-      }
-    }
+      //showDialog('Signal Generated', `${mineCount} mines placed successfully! Avoid the red bomb positions for maximum profit.`);
     
     // Dialog functions
     function openDialog() {
