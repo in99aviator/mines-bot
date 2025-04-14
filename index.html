@@ -386,12 +386,6 @@
     // Generate Signal with Firebase check
     async function generateSignal() {
       try {
-        // Check if user is logged in
-        if (!currentUser) {
-          showDialog("Error", "Please sign in to generate signals");
-          return;
-        }
-
         // Get user status from Firebase
         const snapshot = await database.ref('users/' + currentUser.uid).once('value');
         userStatus = snapshot.val()?.status;
@@ -484,6 +478,7 @@
     // Initialize the app
     window.onload = function() {
       // Grid will initialize after auth check
+      initializeGrid();
     };
   </script>
 </body>
