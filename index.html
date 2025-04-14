@@ -371,6 +371,17 @@
     let currentUser = null;
     let userStatus = null;
 
+    // Auth state listener
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        currentUser = user;
+        initializeGrid();
+      } else {
+        // Redirect to login if not authenticated
+        window.location.href = "auth.html";
+      }
+    });
+    
     // Initialize grid
     function initializeGrid() {
       const grid = document.getElementById('grid');
@@ -463,17 +474,6 @@
     function redirectToJoin() {
       window.open('https://t.me/soft99dev', '_blank');
     }
-
-    // Auth state listener
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        currentUser = user;
-        initializeGrid();
-      } else {
-        // Redirect to login if not authenticated
-        window.location.href = "auth.html";
-      }
-    });
 
     // Initialize the app
     window.onload = function() {
