@@ -54,11 +54,11 @@ function closeDialog() {
 // Check user authentication state
 function checkAuthState() {
   auth.onAuthStateChanged((user) => {
-    if (user) {
-      // User is signed in
+    if (user && user.uid) {
+      console.log("User UID:", user.uid);
       checkUserStatus(user.uid);
     } else {
-      // No user is signed in
+      console.warn("No user signed in.");
       window.location.href = "auth.html";
     }
   });
@@ -69,24 +69,31 @@ function checkUserStatus(uid) {
   database.ref('users/' + uid).once('value')
     .then((snapshot) => {
       const userData = snapshot.val();
-      if (!userData) {
-        showDialog("Error", "User data not found");
+      console.log("User data:", userData);
+
+      if (!userData || !userData.status) {
+        showDialog("Error", "User data not found.");
         auth.signOut();
         return;
       }
 
       const status = userData.status;
-      
+      console.log("User status:", status);
+
       if (status === "blocked") {
         window.location.href = "blocked.html";
       } else if (status !== "active") {
         window.location.href = "plans.html";
       }
-      // If status is active, continue with the app
+
+      // Continue as user is active
     })
     .catch((error) => {
-      console.error("Error checking user status:", error);
-      showDialog("Error", "Failed to check user status");
+      console.error("Error reading user status:", error);
+      showDialog("Error", "Could not verify account. Please retry.");
+    })
+    .finally(() => {
+      loaderOverlay.classList.add('hidden');
     });
 }
 
