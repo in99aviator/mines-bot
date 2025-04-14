@@ -265,28 +265,29 @@
     <div class="toast-content">Message</div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+  
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+      authDomain: "mines-botai.firebaseapp.com",
+      databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+      projectId: "mines-botai",
+      storageBucket: "mines-botai.firebasestorage.app",
+      messagingSenderId: "175710322906",
+      appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
+    };
 
-// Firebase config
-const firebaseConfig = {
-    apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
-    authDomain: "mines-botai.firebaseapp.com",
-    databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
-    projectId: "mines-botai",
-    storageBucket: "mines-botai.firebasestorage.app",
-    messagingSenderId: "175710322906",
-    appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
-  };
-
-// Init Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
     
-    // Toggle between login and register forms
+    // DOM Elements
     const toggleForm = document.getElementById('toggleForm');
     const formTitle = document.getElementById('formTitle');
     const submitBtn = document.getElementById('submitBtn');
@@ -297,6 +298,7 @@ const db = getDatabase(app);
     
     let isLogin = true;
     
+    // Toggle between login and register forms
     toggleForm.addEventListener('click', () => {
       isLogin = !isLogin;
       
@@ -315,6 +317,7 @@ const db = getDatabase(app);
       }
     });
     
+    // Show toast notification
     function showToast(message, isError = false) {
       toast.className = isError ? 'toast-error' : 'toast-success';
       toast.querySelector('.toast-icon').className = isError 
@@ -328,91 +331,91 @@ const db = getDatabase(app);
       }, 3000);
     }
     
-    // Form submission would be handled in auth.js
-    submitBtn.addEventListener('click', () => {
-      // Validate inputs
+    // Handle form submission
+    submitBtn.addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
       
+      // Validate inputs
       if (!email || !password) {
         showToast('Please fill in all fields', true);
         return;
       }
       
-      if (!isLogin) {
-        const name = document.getElementById('name').value.trim();
-        if (!name) {
-          showToast('Please enter your name', true);
-          return;
-        }
-      createUserWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        const uid = userCredential.user.uid;
-        const date = new Date().toLocaleString();
-        set(ref(db, "users/" + uid), {
-          uid: uid,
-          name: name,
-          email: email,
-          password: password,
-          status: "no active",
-          registrationDate: date
-        }).then(() => showToast("User registered successfully!"));
-      })
-      .catch(err => showToast(err.message));
-  } else {
-// Login
-signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    const uid = userCredential.user.uid;
-
-    // Fetch user status from database
-    const userRef = ref(db, "users/" + uid);
-    get(userRef)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
+      // Show loading state
+      const originalBtnHTML = submitBtn.innerHTML;
+      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+      submitBtn.disabled = true;
+      
+      try {
+        if (!isLogin) {
+          // Registration
+          const name = document.getElementById('name').value.trim();
+          if (!name) {
+            showToast('Please enter your name', true);
+            return;
+          }
+          
+          // Create user with email and password
+          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          
+          // Save additional user data to database
+          await database.ref('users/' + user.uid).set({
+            uid: user.uid,
+            name: name,
+            email: email,
+            status: "no active",
+            registrationDate: new Date().toLocaleString()
+          });
+          
+          showToast('Registration successful!');
+          // Optionally redirect to welcome page
+          // window.location.href = 'welcome.html';
+        } else {
+          // Login
+          const userCredential = await auth.signInWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          
+          // Check user status in database
+          const snapshot = await database.ref('users/' + user.uid).once('value');
           const userData = snapshot.val();
+          
+          if (!userData) {
+            showToast('User data not found', true);
+            await auth.signOut();
+            return;
+          }
+          
           const status = userData.status;
-
+          
           if (status === "active") {
-            showToast("Login successful! Redirecting...");
+            showToast('Login successful! Redirecting...');
             setTimeout(() => {
               window.location.href = "index.html";
             }, 1000);
           } else if (status === "blocked") {
-            showToast("Your account is blocked!");
+            showToast('Your account is blocked', true);
+            await auth.signOut();
             setTimeout(() => {
               window.location.href = "blocked.html";
             }, 1000);
           } else {
-            showToast("Your account is not active!");
+            showToast('Your account is not active', true);
+            await auth.signOut();
             setTimeout(() => {
-              window.location.href = "index.html";
+              window.location.href = "plans.html";
             }, 1000);
           }
-        } else {
-          showToast("User data not found!");
         }
-      })
-      .catch((error) => {
-        showToast("Failed to fetch user data: " + error.message);
-      });
-  })
-  .catch((err) => showToast(err.message));
-  }
-      
-      // Show loading state
-      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
-      submitBtn.disabled = true;
-      
-      // Simulate API call
-      setTimeout(() => {
-        showToast(isLogin ? 'Login successful!' : 'Registration successful!');
-        submitBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> ${isLogin ? 'Login' : 'Register'}`;
+      } catch (error) {
+        console.error("Authentication error:", error);
+        showToast(error.message, true);
+      } finally {
+        // Reset button state
+        submitBtn.innerHTML = originalBtnHTML;
         submitBtn.disabled = false;
-        
-        // In real implementation, redirect on success
-        // window.location.href = isLogin ? 'dashboard.html' : 'welcome.html';
-      }, 1500);
+      }
     });
   </script>
 </body>
