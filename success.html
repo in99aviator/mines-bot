@@ -32,6 +32,31 @@
       padding: 1rem;
     }
 
+    #statusLoader .overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9998;
+}
+
+#statusLoader .toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #1a1a2e;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
     .success-container {
       width: 100%;
       max-width: 500px;
@@ -154,6 +179,16 @@
   </style>
 </head>
 <body>
+
+  <!-- Loader & Toast -->
+<div id="statusLoader" style="display: none;">
+  <div class="overlay"></div>
+  <div class="toast">
+    <i class="fas fa-spinner fa-spin"></i>
+    <span id="statusMessage">Checking your account status...</span>
+  </div>
+</div>
+  
   <div class="success-container">
     <div class="success-icon">
       <i class="fas fa-check"></i>
@@ -186,13 +221,64 @@
   </div>
 
   <script>
-    // Display transaction details (you would replace this with actual data from your system)
-    document.getElementById('txnId').textContent = 'TXN-' + Math.floor(Math.random() * 1000000);
-    document.getElementById('amount').textContent = '₹' + (localStorage.getItem('paymentAmount') || '299.00');
-    document.getElementById('date').textContent = new Date().toLocaleString();
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  
+    const firebaseConfig = {
+    apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
+    authDomain: "pg-data-ed1c2.firebaseapp.com",
+    databaseURL: "https://pg-data-ed1c2-default-rtdb.firebaseio.com",
+    projectId: "pg-data-ed1c2",
+    storageBucket: "pg-data-ed1c2.firebasestorage.app",
+    messagingSenderId: "884858492190",
+    appId: "1:884858492190:web:67b7606ff790064ef3250f",
     
-    // Clear payment amount from storage
-    localStorage.removeItem('paymentAmount');
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
+
+  const loader = document.getElementById('statusLoader');
+  const statusMessage = document.getElementById('statusMessage');
+
+  onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loader.style.display = "block";
+    statusMessage.textContent = "Checking your account status...";
+
+    const uid = user.uid;
+
+    // Check user status
+    const statusRef = ref(database, `users/${uid}/status`);
+    onValue(statusRef, (snapshot) => {
+      const status = snapshot.val();
+
+      if (status === "active") {
+        statusMessage.textContent = "Status: Active. Redirecting to dashboard...";
+        setTimeout(() => window.location.href = "index.html", 2000);
+      } else if (status === "blocked") {
+        statusMessage.textContent = "Status: Blocked. Redirecting to blocked page...";
+        setTimeout(() => window.location.href = "blocked.html", 2000);
+      }
+    });
+
+   // Inside onAuthStateChanged
+const settingsRef = ref(database, 'settings/amount');
+onValue(settingsRef, (snapshot) => {
+  const amount = snapshot.val();
+  document.getElementById('amount').textContent = amount ? `₹${amount}` : '₹0.00';
+});
+
+// Also update other elements like txn ID and date
+document.getElementById('txnId').textContent = 'TXN-' + Math.floor(Math.random() * 1000000);
+document.getElementById('date').textContent = new Date().toLocaleString();
+
+  } else {
+    window.location.href = "login.html";
+  }
+});
   </script>
 </body>
 </html>
