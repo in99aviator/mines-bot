@@ -227,6 +227,26 @@
       color: var(--success);
     }
 
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 992px) {
       .plans-container {
         grid-template-columns: 1fr 1fr;
@@ -287,72 +307,10 @@
       <p class="subtitle">Unlock the full potential of Mines Bot AI with our exclusive plans</p>
     </div>
     
-    <div class="plans-container">
-      <!-- Basic Plan -->
-      <div class="plan-card">
-        <div class="plan-header">
-          <h3 class="plan-name">Starter</h3>
-          <p class="plan-description">Perfect for beginners who want to test the bot</p>
-          <div class="plan-price">
-            <span class="price-amount">449</span>
-            <span class="price-duration">/month</span>
-          </div>
-          <span class="price-save">Save 10% with annual plan</span>
-        </div>
-        <ul class="plan-features">
-          <li><i class="fas fa-check feature-available"></i> 85-90% Accuracy Rate</li>
-          <li><i class="fas fa-check feature-available"></i> 5 Signals Per Day</li>
-          <li><i class="fas fa-check feature-available"></i> Basic Support</li>
-          <li><i class="fas fa-check feature-available"></i> 1 Device Connection</li>
-          <li><i class="fas fa-times feature-unavailable"></i> No Custom Strategies</li>
-          <li><i class="fas fa-times feature-unavailable"></i> No VIP Channels</li>
-        </ul>
-        <button class="select-plan" onclick="selectPlan('starter', 49)">Get Started</button>
-      </div>
-      
-      <!-- Pro Plan (Featured) -->
-      <div class="plan-card featured">
-        <div class="popular-badge">MOST POPULAR</div>
-        <div class="plan-header">
-          <h3 class="plan-name">Professional</h3>
-          <p class="plan-description">For serious players who want consistent profits</p>
-          <div class="plan-price">
-            <span class="price-amount">₹599</span>
-            <span class="price-duration">/month</span>
-          </div>
-          <span class="price-save">Save 15% with annual plan</span>
-        </div>
-        <ul class="plan-features">
-          <li><i class="fas fa-check feature-available"></i> 92-96% Accuracy Rate</li>
-          <li><i class="fas fa-check feature-available"></i> 15 Signals Per Day</li>
-          <li><i class="fas fa-check feature-available"></i> Priority Support</li>
-          <li><i class="fas fa-check feature-available"></i> 3 Device Connections</li>
-          <li><i class="fas fa-check feature-available"></i> Basic Strategy Customization</li>
-          <li><i class="fas fa-check feature-available"></i> VIP Signals Channel</li>
-        </ul>
-        <button class="select-plan featured-btn" onclick="selectPlan('professional', 99)">Get Professional</button>
-      </div>
-      
-      <!-- Premium Plan -->
-      <div class="plan-card">
-        <div class="plan-header">
-          <h3 class="plan-name">Enterprise</h3>
-          <p class="plan-description">For high rollers and professional players</p>
-          <div class="plan-price">
-            <span class="price-amount">₹1189</span>
-            <span class="price-duration">/month</span>
-          </div>
-          <span class="price-save">Save 20% with annual plan</span>
-        </div>
-        <ul class="plan-features">
-          <li><i class="fas fa-check feature-available"></i> 97-99% Accuracy Rate</li>
-          <li><i class="fas fa-check feature-available"></i> Unlimited Signals</li>
-          <li><i class="fas fa-check feature-available"></i> 24/7 VIP Support</li>
-          <li><i class="fas fa-check feature-available"></i> 10 Device Connections</li>
-          <li><i class="fas fa-check feature-available"></i> Full Strategy Customization</li>
-          <li><i class="fas fa-check feature-available"></i> All VIP Channels + Private Group</li>
-        </ul>
-        <button class="select-plan" onclick="selectPlan('enterprise', 199)">Get Enterprise</button>
+    <div class="plans-container" id="plansContainer">
+      <!-- Plans will be loaded dynamically -->
+      <div class="loading">
+        <div class="spinner"></div>
       </div>
     </div>
     
@@ -371,19 +329,146 @@
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
   <script>
-    // Select plan and redirect to buy.html with plan details
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyABC123XYZ456DEF789GHI",
+      authDomain: "your-project-id.firebaseapp.com",
+      projectId: "your-project-id",
+      storageBucket: "your-project-id.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abc123def456ghi789jkl"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Plan templates
+    const planTemplates = {
+      starter: {
+        name: "Starter",
+        features: [
+          { text: "85-90% Accuracy Rate", available: true },
+          { text: "5 Signals Per Day", available: true },
+          { text: "Basic Support", available: true },
+          { text: "1 Device Connection", available: true },
+          { text: "Custom Strategies", available: false },
+          { text: "VIP Channels", available: false }
+        ],
+        featured: false
+      },
+      professional: {
+        name: "Professional",
+        features: [
+          { text: "92-96% Accuracy Rate", available: true },
+          { text: "15 Signals Per Day", available: true },
+          { text: "Priority Support", available: true },
+          { text: "3 Device Connections", available: true },
+          { text: "Basic Strategy Customization", available: true },
+          { text: "VIP Signals Channel", available: true }
+        ],
+        featured: true
+      },
+      enterprise: {
+        name: "Enterprise",
+        features: [
+          { text: "97-99% Accuracy Rate", available: true },
+          { text: "Unlimited Signals", available: true },
+          { text: "24/7 VIP Support", available: true },
+          { text: "10 Device Connections", available: true },
+          { text: "Full Strategy Customization", available: true },
+          { text: "All VIP Channels + Private Group", available: true }
+        ],
+        featured: false
+      }
+    };
+
+    // Function to fetch plans from Firebase
+    async function fetchPlans() {
+      try {
+        const querySnapshot = await db.collection("subscriptionPlans").get();
+        const plansData = {};
+        
+        querySnapshot.forEach((doc) => {
+          plansData[doc.id] = doc.data();
+        });
+
+        renderPlans(plansData);
+      } catch (error) {
+        console.error("Error fetching plans: ", error);
+        // Fallback to default prices
+        renderPlans({
+          starter: { price: 449, monthlyPrice: 449, description: "Perfect for beginners who want to test the bot" },
+          professional: { price: 599, monthlyPrice: 599, description: "For serious players who want consistent profits" },
+          enterprise: { price: 1189, monthlyPrice: 1189, description: "For high rollers and professional players" }
+        });
+      }
+    }
+
+    // Function to render plans
+    function renderPlans(plansData) {
+      const plansContainer = document.getElementById('plansContainer');
+      plansContainer.innerHTML = '';
+
+      Object.keys(planTemplates).forEach(planKey => {
+        const plan = planTemplates[planKey];
+        const planData = plansData[planKey] || {};
+        
+        const planCard = document.createElement('div');
+        planCard.className = `plan-card ${plan.featured ? 'featured' : ''}`;
+        
+        if (plan.featured) {
+          planCard.innerHTML += `<div class="popular-badge">MOST POPULAR</div>`;
+        }
+
+        planCard.innerHTML += `
+          <div class="plan-header">
+            <h3 class="plan-name">${plan.name}</h3>
+            <p class="plan-description">${planData.description || planTemplates[planKey].description || ''}</p>
+            <div class="plan-price">
+              <span class="price-amount">₹${planData.price || planData.monthlyPrice || 'N/A'}</span>
+              <span class="price-duration">/month</span>
+            </div>
+            <span class="price-save">Save ${planKey === 'starter' ? '10%' : planKey === 'professional' ? '15%' : '20%'} with annual plan</span>
+          </div>
+          <ul class="plan-features">
+            ${plan.features.map(feature => `
+              <li>
+                <i class="fas fa-${feature.available ? 'check' : 'times'} feature-${feature.available ? 'available' : 'unavailable'}"></i>
+                ${feature.text}
+              </li>
+            `).join('')}
+          </ul>
+          <button class="select-plan ${plan.featured ? 'featured-btn' : ''}">
+            Get ${plan.name}
+          </button>
+        `;
+
+        // Add click event
+        const button = planCard.querySelector('.select-plan');
+        button.onclick = () => selectPlan(planKey, planData.price || planData.monthlyPrice);
+
+        plansContainer.appendChild(planCard);
+      });
+    }
+
+    // Select plan function
     function selectPlan(planName, planPrice) {
-      // Store plan details in localStorage
       localStorage.setItem('selectedPlan', JSON.stringify({
         name: planName,
         price: planPrice,
         date: new Date().toISOString()
       }));
-      
-      // Redirect to buy.html
       window.location.href = 'buy.html';
     }
+
+    // Fetch plans when page loads
+    document.addEventListener('DOMContentLoaded', fetchPlans);
   </script>
 </body>
 </html>
