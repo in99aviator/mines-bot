@@ -410,7 +410,6 @@
 
     // Generate Signal with Firebase check
     async function generateSignal() {
-      try {
         // Get user status from Firebase
         const snapshot = await database.ref('users/' + currentUser.uid).once('value');
         userStatus = snapshot.val()?.status;
@@ -454,11 +453,6 @@
             cell.style.color = '#4ade80';
           }
         });
-
-      } catch (error) {
-        console.error("Error generating signal:", error);
-        showDialog("Error", "Failed to generate signal. Please try again.");
-      }
     }
 
     // Show dialog
