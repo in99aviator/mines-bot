@@ -203,16 +203,6 @@
         padding: 0;
       }
     }
-
-    /* Animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .auth-body {
-      animation: fadeIn 0.5s ease-out;
-    }
   </style>
 </head>
 <body>
@@ -270,24 +260,24 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
   
-  <script type="module">
-// Firebase config
-const firebaseConfig = {
-    apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
-    authDomain: "mines-botai.firebaseapp.com",
-    databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
-    projectId: "mines-botai",
-    storageBucket: "mines-botai.firebasestorage.app",
-    messagingSenderId: "175710322906",
-    appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
-  };
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+      authDomain: "mines-botai.firebaseapp.com",
+      databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+      projectId: "mines-botai",
+      storageBucket: "mines-botai.firebasestorage.app",
+      messagingSenderId: "175710322906",
+      appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
+    };
 
-// Initialize Firebase
+    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
     
-    // Toggle between login and register forms
+    // DOM Elements
     const toggleForm = document.getElementById('toggleForm');
     const formTitle = document.getElementById('formTitle');
     const submitBtn = document.getElementById('submitBtn');
@@ -298,6 +288,7 @@ const firebaseConfig = {
     
     let isLogin = true;
     
+    // Toggle between login and register forms
     toggleForm.addEventListener('click', () => {
       isLogin = !isLogin;
       
@@ -316,6 +307,7 @@ const firebaseConfig = {
       }
     });
     
+    // Show toast notification
     function showToast(message, isError = false) {
       toast.className = isError ? 'toast-error' : 'toast-success';
       toast.querySelector('.toast-icon').className = isError 
@@ -329,96 +321,121 @@ const firebaseConfig = {
       }, 3000);
     }
     
-    // Form submission would be handled in auth.js
-    submitBtn.addEventListener('click', () => {
-      // Validate inputs
+    // Handle form submission
+    submitBtn.addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
       
+      // Validate inputs
       if (!email || !password) {
         showToast('Please fill in all fields', true);
         return;
       }
-
+      
       if (password.length < 6) {
         showToast('Password must be at least 6 characters', true);
         return;
       }
+
+      // Show loading state
+      const originalBtnHTML = submitBtn.innerHTML;
+      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+      submitBtn.disabled = true;
       
-      if (!isLogin) {
-        const name = document.getElementById('name').value.trim();
-        if (!name) {
-          showToast('Please enter your name', true);
-          return;
-        }
-      createUserWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        const uid = userCredential.user.uid;
-        const date = new Date().toLocaleString();
-        set(ref(db, "users/" + uid), {
-          uid: uid,
-          name: name,
-          email: email,
-          password: password,
-          status: "no active",
-          registrationDate: date
-        }).then(() => showToast("User registered successfully!"));
-      })
-      .catch(err => showToast(err.message));
-  } else {
-// Login
-signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    const uid = userCredential.user.uid;
-
-    // Fetch user status from database
-    const userRef = ref(db, "users/" + uid);
-    get(userRef)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
+      try {
+        if (!isLogin) {
+          // Registration
+          const name = document.getElementById('name').value.trim();
+          if (!name) {
+            throw new Error('Please enter your name');
+          }
+          
+          // Create user with email and password
+          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          
+          // Save additional user data to database
+          await database.ref('users/' + user.uid).set({
+            uid: user.uid,
+            name: name,
+            email: email,
+            status: "no active",
+            registrationDate: new Date().toISOString()
+          });
+          
+          showToast('Registration successful! Please login');
+          // Switch back to login form after successful registration
+          isLogin = true;
+          formTitle.textContent = 'Welcome Back';
+          submitText.textContent = 'Login';
+          toggleText.textContent = "Don't have an account?";
+          toggleForm.textContent = 'Register now';
+          nameGroup.style.display = 'none';
+        } else {
+          // Login
+          const userCredential = await auth.signInWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          
+          // Check user status in database
+          const snapshot = await database.ref('users/' + user.uid).once('value');
           const userData = snapshot.val();
+          
+          if (!userData) {
+            throw new Error('User data not found');
+          }
+          
           const status = userData.status;
-
+          
           if (status === "active") {
-            showToast("Login successful! Redirecting...");
+            showToast('Login successful! Redirecting...');
             setTimeout(() => {
               window.location.href = "index.html";
             }, 1000);
           } else if (status === "blocked") {
-            showToast("Your account is blocked!");
+            showToast('Your account is blocked', true);
+            await auth.signOut();
             setTimeout(() => {
               window.location.href = "blocked.html";
             }, 1000);
           } else {
-            showToast("Your account is not active!");
+            showToast('Your account is not active', true);
+            await auth.signOut();
             setTimeout(() => {
-              window.location.href = "index.html";
+              window.location.href = "plans.html";
             }, 1000);
           }
-        } else {
-          showToast("User data not found!");
         }
-      })
-      .catch((error) => {
-        showToast("Failed to fetch user data: " + error.message);
-      });
-  })
-  .catch((err) => showToast(err.message));
-  }
-      
-      // Show loading state
-      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
-      submitBtn.disabled = true;
-      
-      // Simulate API call
-      setTimeout(() => {
-        showToast(isLogin ? 'Login successful!' : 'Registration successful!');
-        submitBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> ${isLogin ? 'Login' : 'Register'}`;
-        submitBtn.disabled = false;
+      } catch (error) {
+        console.error("Authentication error:", error);
         
-        // In real implementation, redirect on success
-        // window.location.href = isLogin ? 'dashboard.html' : 'welcome.html';
-      }, 1500);
+        // Handle specific Firebase errors
+        let errorMessage = error.message;
+        if (error.code) {
+          switch(error.code) {
+            case 'auth/email-already-in-use':
+              errorMessage = 'Email already in use';
+              break;
+            case 'auth/invalid-email':
+              errorMessage = 'Invalid email address';
+              break;
+            case 'auth/weak-password':
+              errorMessage = 'Password should be at least 6 characters';
+              break;
+            case 'auth/user-not-found':
+              errorMessage = 'User not found';
+              break;
+            case 'auth/wrong-password':
+              errorMessage = 'Incorrect password';
+              break;
+          }
+        }
+        
+        showToast(errorMessage, true);
+      } finally {
+        // Reset button state
+        submitBtn.innerHTML = originalBtnHTML;
+        submitBtn.disabled = false;
+      }
     });
   </script>
 </body>
