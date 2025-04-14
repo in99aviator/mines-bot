@@ -407,8 +407,28 @@
     </button>
   </div>
 
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+
 <script>
-  // Initialize grid when page loads
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DB_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_BUCKET",
+    messagingSenderId: "YOUR_MSG_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
   function initializeGrid() {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
@@ -419,9 +439,40 @@
       grid.appendChild(cell);
     }
   }
+  
+   // Show dialog
+  function showDialog(title, message) {
+    const dialog = document.getElementById('dialogOverlay');
+    document.getElementById('dialogTitle').textContent = title;
+    document.getElementById('dialogMessage').innerHTML = message;
+    dialog.classList.add('active');
+  }
 
-  // Generate Signal Button
+  function closeDialog() {
+    document.getElementById('dialogOverlay').classList.remove('active');
+  }
+
   function generateSignal() {
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        const uid = user.uid;
+        db.ref("users/" + uid + "/status").once("value").then(snapshot => {
+          const status = snapshot.val();
+          if (status === "active") {
+            runSignalLogic(); // run mines logic
+          } else if (status === "blocked") {
+            window.location.href = "blocked.html";
+          } else {
+            window.location.href = "plans.html";
+          }
+        });
+      } else {
+        window.location.href = "login.html"; // Or wherever you handle login
+      }
+    });
+  }
+
+  function runSignalLogic() {
     const mineCount = parseInt(document.getElementById('mineCount').value);
     const cells = document.querySelectorAll('.cell');
 
@@ -451,18 +502,6 @@
         cell.style.color = '#4ade80';
       }
     });
-  }
-
-  // Show dialog
-  function showDialog(title, message) {
-    const dialog = document.getElementById('dialogOverlay');
-    document.getElementById('dialogTitle').textContent = title;
-    document.getElementById('dialogMessage').innerHTML = message;
-    dialog.classList.add('active');
-  }
-
-  function closeDialog() {
-    document.getElementById('dialogOverlay').classList.remove('active');
   }
 
   // Status bar updater
