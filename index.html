@@ -397,7 +397,7 @@
   <!-- Loading Overlay -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loader"></div>
-    <p style="color:white; margin-top:15px;">Checking account status...</p>
+    <p style="color:white; margin-top:15px;">Checking Account Verification.</p>
   </div>
   
   <!-- Main App -->
@@ -507,7 +507,20 @@
 
   let userStatus = null;
   let currentUser = null;
-    
+
+  // Show loader overlay
+function showLoader(message = "Checking Account Verification.") {
+  const loader = document.getElementById('loadingOverlay');
+  loader.style.display = 'flex';
+  loader.querySelector('p').textContent = message;
+}
+
+// Hide loader overlay
+function hideLoader() {
+  const loader = document.getElementById('loadingOverlay');
+  loader.style.display = 'none';
+}
+  
   // Initialize grid
   function initializeGrid() {
     const grid = document.getElementById('grid');
@@ -522,7 +535,7 @@
 
   // Generate Signal Button
   function generateSignal() {
-    showLoader();
+    showLoader("Loading Mines Bot...");
     if (userStatus === "blocked") {
       // Timeout loader if stuck too long (e.g., 15 seconds)
       setTimeout(() => {
@@ -600,7 +613,7 @@
 
   // Auth state checker
   auth.onAuthStateChanged((user) => {
-    showLoader();
+    showLoader("Loading Mines Bot...");
     if (user) {
       currentUser = user;
       checkUserStatus(user.uid);
@@ -639,16 +652,15 @@
       showDialog("Error", "Could not verify your account status. Please try again later.");
     });
   }
-
-    // Show/Hide Loader functions
-function showLoader() {
-  document.getElementById('loadingOverlay').style.display = 'flex';
-}
-
-function hideLoader() {
-  document.getElementById('loadingOverlay').style.display = 'none';
-}
-</script>
+    
+    // Auto hide loader if it takes too long
+setTimeout(() => {
+  const loader = document.getElementById('loadingOverlay');
+  if (loader.style.display === 'flex') {
+    hideLoader();
+    //showDialog("Timeout", "Something went wrong. Please refresh or check your internet.");
+  }
+}, 5000); // 15 seconds
     
   </script>
 </body>
