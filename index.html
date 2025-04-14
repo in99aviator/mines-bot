@@ -508,6 +508,8 @@
   let userStatus = null;
   let currentUser = null;
 
+  const loader = document.getElementById('loadingOverlay');
+    
   // Initialize grid
   function initializeGrid() {
     const grid = document.getElementById('grid');
@@ -522,11 +524,20 @@
 
   // Generate Signal Button
   function generateSignal() {
+    showLoader();
     if (userStatus === "blocked") {
-      window.location.href = "blocked.html";
+      // Timeout loader if stuck too long (e.g., 15 seconds)
+      setTimeout(() => {
+          hideLoader(); // hide the loader
+          window.location.href = "blocked.html";
+       }, 4000); // 15,000 milliseconds = 15 seconds
+      
       return;
     } else if (userStatus !== "active") {
-      window.location.href = "plans.html";
+      setTimeout(() => {
+          hideLoader(); // hide the loader
+          window.location.href = "plans.html";
+       }, 4000);
       return;
     }
 
@@ -591,9 +602,13 @@
 
   // Auth state checker
   auth.onAuthStateChanged((user) => {
+    showLoader();
     if (user) {
       currentUser = user;
       checkUserStatus(user.uid);
+      setTimeout(() => {
+          hideLoader();
+       }, 4000);
     } else {
       window.location.href = "auth.html";
     }
@@ -626,6 +641,15 @@
       showDialog("Error", "Could not verify your account status. Please try again later.");
     });
   }
+
+    // Show/Hide Loader functions
+function showLoader() {
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoader() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
 </script>
     
   </script>
