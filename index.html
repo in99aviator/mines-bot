@@ -46,36 +46,6 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
-    /* Loading Overlay */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .loader {
-      border: 4px solid rgba(255, 255, 255, 0.1);
-      border-top: 4px solid var(--primary-light);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 1rem;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
     /* Main Container */
     .container {
       max-width: 800px;
@@ -96,42 +66,11 @@
     }
 
     /* Titles */
-    .main-title {
-      font-size: 1.5rem;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      background: linear-gradient(to right, var(--primary-light), var(--success));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
     .subtitle {
       font-size: 1.25rem;
       text-align: center;
       margin-bottom: 1.5rem;
       color: var(--light);
-    }
-
-    /* Leaderboard */
-    .leaderboard-horizontal {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.5rem;
-      overflow: hidden;
-    }
-
-    .scrolling-text {
-      white-space: nowrap;
-      animation: scroll 20s linear infinite;
-      color: var(--warning);
-      font-weight: 500;
-    }
-
-    @keyframes scroll {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
     }
 
     /* Mines Grid */
@@ -159,10 +98,6 @@
     .cell:hover {
       background: rgba(255, 255, 255, 0.2);
       transform: translateY(-2px);
-    }
-
-    .cell.revealed {
-      background: rgba(76, 201, 240, 0.2);
     }
 
     .cell.mine {
@@ -376,10 +311,6 @@
     }
 
     @media (max-width: 480px) {
-      .main-title {
-        font-size: 1.25rem;
-      }
-      
       .subtitle {
         font-size: 1rem;
       }
@@ -394,14 +325,8 @@
   <!-- Toolbar -->
   <div class="toolbar">• Mines Bot AI •</div>
   
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="loading-overlay">
-    <div class="loader"></div>
-    <p style="color:white; margin-top:15px;">Checking Mines Bot Ai.</p>
-  </div>
-  
   <!-- Main App -->
-  <div class="container" id="appContainer" style="display: none;">
+  <div class="container">
     <div class="status-text" id="status">
       <i class="fas fa-check-circle"></i> Bot Status: Connected to Server
     </div>
@@ -472,7 +397,7 @@
     </div>
     
     <!-- Join Panel -->
-    <div class="join-box" id="joinBox">
+    <div class="join-box">
       <h2><i class="fas fa-crown"></i> Welcome to MODX Premium!</h2>
       <p>Join our exclusive Telegram channel for real-time signals and community support</p>
     </div>
@@ -482,45 +407,8 @@
     </button>
   </div>
 
-  <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
-
 <script>
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
-    authDomain: "mines-botai.firebaseapp.com",
-    databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
-    projectId: "mines-botai",
-    storageBucket: "mines-botai.firebasestorage.app",
-    messagingSenderId: "175710322906",
-    appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
-  };
-
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const database = firebase.database();
-
-  let userStatus = null;
-  let currentUser = null;
-
-  // Show loader overlay
-  function showLoader(message = "Checking Account Verification.") {
-    const loader = document.getElementById('loadingOverlay');
-    loader.style.display = 'flex';
-    loader.querySelector('p').textContent = message;
-  }
-
-  // Hide loader overlay
-  function hideLoader() {
-    const loader = document.getElementById('loadingOverlay');
-    loader.style.display = 'none';
-  }
-
-  // Initialize grid
+  // Initialize grid when page loads
   function initializeGrid() {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
@@ -534,42 +422,35 @@
 
   // Generate Signal Button
   function generateSignal() {
-    showLoader("Generating Signal...");
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      hideLoader();
-      
-      const mineCount = parseInt(document.getElementById('mineCount').value);
-      const cells = document.querySelectorAll('.cell');
+    const mineCount = parseInt(document.getElementById('mineCount').value);
+    const cells = document.querySelectorAll('.cell');
 
-      // Reset grid
-      cells.forEach(cell => {
-        cell.classList.remove('mine', 'safe');
-        cell.innerHTML = '';
-      });
+    // Reset grid
+    cells.forEach(cell => {
+      cell.classList.remove('mine', 'safe');
+      cell.innerHTML = '';
+    });
 
-      // Place mines
-      const minePositions = [];
-      while (minePositions.length < mineCount) {
-        const pos = Math.floor(Math.random() * 25);
-        if (!minePositions.includes(pos)) {
-          minePositions.push(pos);
-          cells[pos].classList.add('mine');
-          cells[pos].innerHTML = '💣';
-          cells[pos].style.color = '#f72585';
-        }
+    // Place mines
+    const minePositions = [];
+    while (minePositions.length < mineCount) {
+      const pos = Math.floor(Math.random() * 25);
+      if (!minePositions.includes(pos)) {
+        minePositions.push(pos);
+        cells[pos].classList.add('mine');
+        cells[pos].innerHTML = '💣';
+        cells[pos].style.color = '#f72585';
       }
+    }
 
-      // Mark safe
-      cells.forEach((cell, index) => {
-        if (!minePositions.includes(index)) {
-          cell.classList.add('safe');
-          cell.innerHTML = '💎';
-          cell.style.color = '#4ade80';
-        }
-      });
-    }, 2000);
+    // Mark safe
+    cells.forEach((cell, index) => {
+      if (!minePositions.includes(index)) {
+        cell.classList.add('safe');
+        cell.innerHTML = '💎';
+        cell.style.color = '#4ade80';
+      }
+    });
   }
 
   // Show dialog
@@ -600,24 +481,9 @@
     window.open('https://t.me/soft99dev', '_blank');
   }
 
-  // Simulate authentication check (since we don't have actual auth)
-  function simulateAuthCheck() {
-    showLoader("Verifying Your Session...");
-    
-    // Simulate authentication delay
-    setTimeout(() => {
-      // For demo purposes, we'll assume the user is authenticated
-      userStatus = "active";
-      document.getElementById('appContainer').style.display = 'block';
-      hideLoader();
-      initializeGrid();
-      updateStatus();
-    }, 2000);
-  }
-
-  // Initialize the app
+  // Initialize the app when page loads
   window.onload = function() {
-    simulateAuthCheck();
+    initializeGrid();
   };
 </script>
 </body>
