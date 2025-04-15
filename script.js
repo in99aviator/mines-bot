@@ -83,7 +83,7 @@ function checkUserStatus(uid) {
       if (status === "blocked") {
         window.location.href = "blocked.html";
       } else if (status !== "active") {
-        window.location.href = "plans.html";
+        //window.location.href = ".html";
       }
 
       // Continue as user is active
