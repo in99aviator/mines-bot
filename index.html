@@ -20,7 +20,7 @@
   --gray: #6c757d;
   --white: #ffffff;
   --safe-color: #FFD700; /* Yellow for safe cells */
-  --mine-color: #808080; /* Grey for mines */
+  --mine-color: #FF5252; /* Red for mines */
 }
 
 * {
@@ -95,6 +95,7 @@ body {
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .cell:hover {
@@ -103,24 +104,26 @@ body {
 }
 
 .cell.mine {
-  background: rgba(128, 128, 128, 0.2);
-  color: var(--mine-color);
+  background: rgba(255, 82, 82, 0.1);
+  border: 2px solid var(--mine-color);
 }
 
 .cell.safe {
-  background: rgba(255, 215, 0, 0.2);
-  color: var(--safe-color);
+  background: rgba(255, 215, 0, 0.1);
+  border: 2px solid var(--safe-color);
 }
 
-/* Cell Split Animation */
-@keyframes cellSplit {
+.cell img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+/* Cell Reveal Animation */
+@keyframes revealCell {
   0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(0.5);
-    opacity: 0.5;
+    transform: scale(0.8);
+    opacity: 0;
   }
   100% {
     transform: scale(1);
@@ -129,7 +132,7 @@ body {
 }
 
 .cell.animate {
-  animation: cellSplit 0.5s ease-in-out;
+  animation: revealCell 0.3s ease-out;
 }
 
 /* Spinner */
@@ -764,13 +767,13 @@ body {
           if (minePositions.includes(index)) {
             setTimeout(() => {
               cell.classList.add('mine');
-              cell.innerHTML = '💣';
-            }, 250); // Halfway through animation
+              cell.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/921/921490.png" alt="Bomb">';
+            }, 150); // Halfway through animation
           } else {
             setTimeout(() => {
               cell.classList.add('safe');
-              cell.innerHTML = '💎';
-            }, 250); // Halfway through animation
+              cell.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Diamond">';
+            }, 150); // Halfway through animation
           }
         }, index * 50); // Stagger animations
       });
