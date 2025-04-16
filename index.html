@@ -21,6 +21,7 @@
   --white: #ffffff;
   --safe-color: #FFD700; /* Yellow for safe cells */
   --mine-color: #FF5252; /* Red for mines */
+  --instagram-gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
 }
 
 * {
@@ -117,6 +118,45 @@ body {
   width: 60%;
   height: 60%;
   object-fit: contain;
+}
+
+/* Enhanced Safe Cell Animation */
+@keyframes safePulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+@keyframes diamondSpin {
+  0% {
+    transform: rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.cell.safe {
+  animation: safePulse 2s infinite;
+}
+
+.cell.safe img {
+  animation: diamondSpin 0.8s ease-out forwards;
 }
 
 /* Cell Reveal Animation */
@@ -302,6 +342,87 @@ body {
 .join-box p {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.join-box .action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* Instagram Follow Button */
+.instagram-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--instagram-gradient);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(188, 24, 136, 0.3);
+  width: 100%;
+  max-width: 200px;
+}
+
+.instagram-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(188, 24, 136, 0.4);
+}
+
+.instagram-btn:active {
+  transform: translateY(0);
+}
+
+.instagram-btn .btn-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.instagram-btn i {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.instagram-btn:hover i {
+  transform: scale(1.1);
+}
+
+.instagram-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+.instagram-btn:hover::before {
+  left: 100%;
+}
+
+/* Pulse animation on hover */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(188, 24, 136, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(188, 24, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(188, 24, 136, 0); }
+}
+
+.instagram-btn:hover {
+  animation: pulse 1.5s infinite;
 }
 
 .join-btn {
@@ -470,6 +591,15 @@ body {
   .join-box, .telegram-btn {
     max-width: 100%;
   }
+  
+  .join-box .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .instagram-btn {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -501,6 +631,11 @@ body {
   
   .telegram-btn i {
     font-size: 18px;
+  }
+  
+  .instagram-btn {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 }
   </style>
@@ -587,14 +722,21 @@ body {
     <div class="join-box">
       <h2><i class="fas fa-crown"></i> Welcome to MODX Premium!</h2>
       <p>Join our exclusive Telegram channel for real-time signals and community support</p>
+      <div class="action-buttons">
+        <button id="follow-btn" class="instagram-btn">
+          <span class="btn-content">
+            <i class="fab fa-instagram"></i>
+            <span>Follow Me</span>
+          </span>
+        </button>
+        <button id="join-btn" class="telegram-btn">
+          <span class="btn-content">
+            <i class="fab fa-telegram"></i>
+            <span>Join Channel</span>
+          </span>
+        </button>
+      </div>
     </div>
-
-    <button id="join-btn" class="telegram-btn">
-      <span class="btn-content">
-        <i class="fab fa-telegram"></i>
-        <span class="btn-text">Join Telegram Channel</span>
-      </span>
-    </button>
   </div>
 
   <!-- Firebase SDKs -->
@@ -627,6 +769,7 @@ body {
     const openBtn = document.querySelector('.open-btn');
     const statusBtn = document.getElementById('statusBtn');
     const joinBtn = document.getElementById('join-btn');
+    const followBtn = document.getElementById('follow-btn');
     const dialogOverlay = document.getElementById('dialogOverlay');
     const closeBtn = document.querySelector('.close-btn');
     const dialogTitle = document.getElementById('dialogTitle');
@@ -767,13 +910,13 @@ body {
           if (minePositions.includes(index)) {
             setTimeout(() => {
               cell.classList.add('mine');
-              cell.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/12695/12695429.png" alt="Bomb">';
-            }, 150); // Halfway through animation
+              // Empty mine cell as requested
+            }, 150);
           } else {
             setTimeout(() => {
               cell.classList.add('safe');
               cell.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Diamond">';
-            }, 150); // Halfway through animation
+            }, 150);
           }
         }, index * 50); // Stagger animations
       });
@@ -795,6 +938,11 @@ body {
     function redirectToJoin() {
       window.open('https://t.me/soft99dev', '_blank');
     }
+    
+    // Redirect to Instagram
+    function redirectToFollow() {
+      window.open('https://instagram.com', '_blank');
+    }
 
     // Event Listeners
     signalBtn.addEventListener('click', generateSignal);
@@ -806,6 +954,7 @@ body {
     });
     statusBtn.addEventListener('click', updateStatus);
     joinBtn.addEventListener('click', redirectToJoin);
+    followBtn.addEventListener('click', redirectToFollow);
     closeBtn.addEventListener('click', closeDialog);
 
     // Initialize the app when page loads
