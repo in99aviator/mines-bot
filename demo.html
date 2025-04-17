@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Soft Grid</title>
+  <meta charset="UTF-8">
+  <title>VIP Grid Prediction</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: linear-gradient(to right, #000000, #1e3c72);
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      text-align: center;
       padding: 20px;
     }
 
     h1 {
-      margin-bottom: 20px;
       text-shadow: 0 0 10px white;
     }
 
@@ -24,7 +24,8 @@
       display: grid;
       grid-template-columns: repeat(5, 60px);
       gap: 10px;
-      margin-bottom: 20px;
+      justify-content: center;
+      margin: 20px auto;
     }
 
     .cell {
@@ -46,51 +47,69 @@
 
     .buttons {
       display: flex;
+      justify-content: center;
       gap: 10px;
+      margin-top: 20px;
     }
 
-    .button {
+    button {
       padding: 10px 20px;
-      background-color: lightblue;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .signal {
+      background-color: lightblue;
     }
 
     .reload {
       background-color: white;
     }
+
+    #qr-reader {
+      width: 300px;
+      margin: 20px auto;
+    }
   </style>
 </head>
 <body>
+
   <h1>SOFT</h1>
   <div class="grid" id="grid"></div>
 
   <div class="buttons">
-    <button class="button signal" onclick="activateStars()">Signal</button>
-    <button class="button reload" onclick="resetGrid()">↺</button>
+    <button class="signal" onclick="startQRScan()">Signal</button>
+    <button class="reload" onclick="resetGrid()">↺</button>
   </div>
 
-  <script>
-    const grid = document.getElementById('grid');
+  <div id="qr-reader"></div>
 
-    // Create 5x5 grid
+  <script type="module">
+    // Firebase setup
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+      authDomain: "mines-botai.firebaseapp.com",
+      databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+      projectId: "mines-botai",
+      storageBucket: "mines-botai.firebasestorage.app",
+      messagingSenderId: "175710322906",
+      appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Grid setup
+    const gridElement = document.getElementById('grid');
     for (let i = 0; i < 25; i++) {
       const div = document.createElement('div');
-      div.classList.add('cell');
-      grid.appendChild(div);
-    }
-
-    function activateStars() {
-      resetGrid();
-      const cells = document.querySelectorAll('.cell');
-      const starCount = Math.floor(Math.random() * 6) + 3; // 3-8 stars
-      for (let i = 0; i < starCount; i++) {
-        const randomIndex = Math.floor(Math.random() * 25);
-        cells[randomIndex].classList.add('star');
-        cells[randomIndex].textContent = '★';
-      }
+      div.className = 'cell';
+      gridElement.appendChild(div);
     }
 
     function resetGrid() {
@@ -99,6 +118,52 @@
         cell.textContent = '';
       });
     }
+
+    async function loadVIPGrid() {
+      try {
+        const dbRef = ref(db);
+        const snapshot = await get(child(dbRef, 'vipPrediction/session123'));
+
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const cells = document.querySelectorAll('.cell');
+          resetGrid();
+          data.grid.forEach(index => {
+            if (cells[index]) {
+              cells[index].classList.add('star');
+              cells[index].textContent = '★';
+            }
+          });
+        } else {
+          alert("No VIP grid found.");
+        }
+      } catch (error) {
+        console.error("Error loading grid:", error);
+      }
+    }
+
+    window.startQRScan = function () {
+      const qrBox = document.getElementById("qr-reader");
+      qrBox.innerHTML = ""; // Clear previous scanner
+      const qrCode = new Html5Qrcode("qr-reader");
+
+      qrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        qrText => {
+          console.log("QR Scanned: ", qrText);
+          qrCode.stop();
+          qrBox.innerHTML = "";
+          loadVIPGrid();
+        },
+        err => {
+          console.warn("QR error", err);
+        }
+      );
+    }
+
+    window.resetGrid = resetGrid;
   </script>
+
 </body>
 </html>
