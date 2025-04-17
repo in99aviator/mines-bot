@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>VIP Grid Prediction</title>
+  <title>VIP Admin Grid</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     body {
+      background: #121212;
+      color: #fff;
       font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #000000, #1e3c72);
-      color: white;
       text-align: center;
-      padding: 20px;
+      padding: 30px;
     }
 
     h1 {
-      text-shadow: 0 0 10px white;
+      margin-bottom: 20px;
+      color: orange;
     }
 
     .grid {
@@ -31,81 +31,62 @@
     .cell {
       width: 60px;
       height: 60px;
-      background-color: #0b3d91;
-      border-radius: 8px;
+      background: #333;
+      border-radius: 6px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 24px;
-      transition: 0.3s;
+      font-size: 26px;
+      cursor: pointer;
+      transition: 0.2s;
     }
 
-    .star {
+    .selected {
       background-color: orange;
       color: white;
     }
 
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
     button {
+      margin: 15px 8px;
       padding: 10px 20px;
+      font-weight: bold;
       border: none;
       border-radius: 6px;
-      font-weight: bold;
       cursor: pointer;
     }
 
-    .signal {
-      background-color: lightblue;
+    .save {
+      background-color: limegreen;
+      color: white;
     }
 
-    .reload {
-      background-color: white;
+    .reset {
+      background-color: crimson;
+      color: white;
     }
 
-    .toggle {
+    .status {
       margin-top: 20px;
-    }
-
-    .toggle label {
       font-size: 14px;
-    }
-
-    #qr-reader {
-      width: 300px;
-      margin: 20px auto;
-      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>SOFT</h1>
+
+  <h1>Admin Panel - VIP Grid Set</h1>
 
   <div class="grid" id="grid"></div>
 
-  <div class="buttons">
-    <button class="signal" onclick="handleSignal()">Signal</button>
-    <button class="reload" onclick="resetGrid()">↺</button>
+  <div>
+    <button class="save" onclick="saveGrid()">Save Grid</button>
+    <button class="reset" onclick="resetGrid()">Reset</button>
   </div>
 
-  <div class="toggle">
-    <label>
-      <input type="checkbox" id="qrToggle" />
-      Use QR Scan before Signal
-    </label>
-  </div>
-
-  <div id="qr-reader"></div>
+  <div class="status" id="statusMsg"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
@@ -120,76 +101,58 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const gridElement = document.getElementById("grid");
+    const gridElement = document.getElementById('grid');
+    const statusMsg = document.getElementById('statusMsg');
+    const selectedIndexes = new Set();
+
+    // Create grid
     for (let i = 0; i < 25; i++) {
-      const div = document.createElement("div");
-      div.className = "cell";
-      gridElement.appendChild(div);
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.textContent = i + 1;
+      cell.dataset.index = i;
+      cell.onclick = () => toggleCell(cell);
+      gridElement.appendChild(cell);
+    }
+
+    function toggleCell(cell) {
+      const index = parseInt(cell.dataset.index);
+      if (cell.classList.contains('selected')) {
+        cell.classList.remove('selected');
+        cell.textContent = index + 1;
+        selectedIndexes.delete(index);
+      } else {
+        cell.classList.add('selected');
+        cell.textContent = '★';
+        selectedIndexes.add(index);
+      }
     }
 
     function resetGrid() {
-      document.querySelectorAll(".cell").forEach(cell => {
-        cell.classList.remove("star");
-        cell.textContent = "";
+      document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove('selected');
+        cell.textContent = parseInt(cell.dataset.index) + 1;
       });
+      selectedIndexes.clear();
+      statusMsg.textContent = "";
     }
 
-    async function loadVIPGrid() {
+    async function saveGrid() {
       try {
-        const dbRef = ref(db);
-        const snapshot = await get(child(dbRef, "vipPrediction/session123"));
-
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          const cells = document.querySelectorAll(".cell");
-          resetGrid();
-          data.grid.forEach(index => {
-            if (cells[index]) {
-              cells[index].classList.add("star");
-              cells[index].textContent = "★";
-            }
-          });
-        } else {
-          alert("No VIP grid found.");
-        }
+        const sortedArray = Array.from(selectedIndexes).sort((a, b) => a - b);
+        await set(ref(db, 'vipPrediction/session123'), { grid: sortedArray });
+        statusMsg.textContent = "Grid saved to Firebase!";
+        statusMsg.style.color = "lightgreen";
       } catch (error) {
-        console.error("Error loading grid:", error);
+        console.error("Save failed:", error);
+        statusMsg.textContent = "Error saving grid.";
+        statusMsg.style.color = "red";
       }
-    }
-
-    window.handleSignal = function () {
-      const useQR = document.getElementById("qrToggle").checked;
-      if (useQR) {
-        startQRScan();
-      } else {
-        loadVIPGrid();
-      }
-    };
-
-    function startQRScan() {
-      const qrBox = document.getElementById("qr-reader");
-      qrBox.style.display = "block";
-      qrBox.innerHTML = "";
-
-      const qrCode = new Html5Qrcode("qr-reader");
-
-      qrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        qrText => {
-          console.log("QR Scanned:", qrText);
-          qrCode.stop();
-          qrBox.style.display = "none";
-          qrBox.innerHTML = "";
-          loadVIPGrid();
-        },
-        err => {
-          console.warn("QR error", err);
-        }
-      );
     }
 
     window.resetGrid = resetGrid;
+    window.saveGrid = saveGrid;
   </script>
+
 </body>
 </html>
