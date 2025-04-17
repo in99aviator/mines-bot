@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>VIP Grid Prediction</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -50,6 +50,7 @@
       justify-content: center;
       gap: 10px;
       margin-top: 20px;
+      flex-wrap: wrap;
     }
 
     button {
@@ -68,26 +69,41 @@
       background-color: white;
     }
 
+    .toggle {
+      margin-top: 20px;
+    }
+
+    .toggle label {
+      font-size: 14px;
+    }
+
     #qr-reader {
       width: 300px;
       margin: 20px auto;
+      display: none;
     }
   </style>
 </head>
 <body>
-
   <h1>SOFT</h1>
+
   <div class="grid" id="grid"></div>
 
   <div class="buttons">
-    <button class="signal" onclick="startQRScan()">Signal</button>
+    <button class="signal" onclick="handleSignal()">Signal</button>
     <button class="reload" onclick="resetGrid()">↺</button>
+  </div>
+
+  <div class="toggle">
+    <label>
+      <input type="checkbox" id="qrToggle" />
+      Use QR Scan before Signal
+    </label>
   </div>
 
   <div id="qr-reader"></div>
 
   <script type="module">
-    // Firebase setup
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
@@ -98,40 +114,39 @@
       projectId: "mines-botai",
       storageBucket: "mines-botai.firebasestorage.app",
       messagingSenderId: "175710322906",
-      appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
+      appId: "1:175710322906:web:94470ebbc40336f6dfe5e3"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Grid setup
-    const gridElement = document.getElementById('grid');
+    const gridElement = document.getElementById("grid");
     for (let i = 0; i < 25; i++) {
-      const div = document.createElement('div');
-      div.className = 'cell';
+      const div = document.createElement("div");
+      div.className = "cell";
       gridElement.appendChild(div);
     }
 
     function resetGrid() {
-      document.querySelectorAll('.cell').forEach(cell => {
-        cell.classList.remove('star');
-        cell.textContent = '';
+      document.querySelectorAll(".cell").forEach(cell => {
+        cell.classList.remove("star");
+        cell.textContent = "";
       });
     }
 
     async function loadVIPGrid() {
       try {
         const dbRef = ref(db);
-        const snapshot = await get(child(dbRef, 'vipPrediction/session123'));
+        const snapshot = await get(child(dbRef, "vipPrediction/session123"));
 
         if (snapshot.exists()) {
           const data = snapshot.val();
-          const cells = document.querySelectorAll('.cell');
+          const cells = document.querySelectorAll(".cell");
           resetGrid();
           data.grid.forEach(index => {
             if (cells[index]) {
-              cells[index].classList.add('star');
-              cells[index].textContent = '★';
+              cells[index].classList.add("star");
+              cells[index].textContent = "★";
             }
           });
         } else {
@@ -142,17 +157,29 @@
       }
     }
 
-    window.startQRScan = function () {
+    window.handleSignal = function () {
+      const useQR = document.getElementById("qrToggle").checked;
+      if (useQR) {
+        startQRScan();
+      } else {
+        loadVIPGrid();
+      }
+    };
+
+    function startQRScan() {
       const qrBox = document.getElementById("qr-reader");
-      qrBox.innerHTML = ""; // Clear previous scanner
+      qrBox.style.display = "block";
+      qrBox.innerHTML = "";
+
       const qrCode = new Html5Qrcode("qr-reader");
 
       qrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: 250 },
         qrText => {
-          console.log("QR Scanned: ", qrText);
+          console.log("QR Scanned:", qrText);
           qrCode.stop();
+          qrBox.style.display = "none";
           qrBox.innerHTML = "";
           loadVIPGrid();
         },
@@ -164,6 +191,5 @@
 
     window.resetGrid = resetGrid;
   </script>
-
 </body>
 </html>
