@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Soft Grid</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #000000, #1e3c72);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px white;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      background-color: #0b3d91;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      transition: 0.3s;
+    }
+
+    .star {
+      background-color: orange;
+      color: white;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .button {
+      padding: 10px 20px;
+      background-color: lightblue;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .reload {
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>SOFT</h1>
+  <div class="grid" id="grid"></div>
+
+  <div class="buttons">
+    <button class="button signal" onclick="activateStars()">Signal</button>
+    <button class="button reload" onclick="resetGrid()">↺</button>
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+
+    // Create 5x5 grid
+    for (let i = 0; i < 25; i++) {
+      const div = document.createElement('div');
+      div.classList.add('cell');
+      grid.appendChild(div);
+    }
+
+    function activateStars() {
+      resetGrid();
+      const cells = document.querySelectorAll('.cell');
+      const starCount = Math.floor(Math.random() * 6) + 3; // 3-8 stars
+      for (let i = 0; i < starCount; i++) {
+        const randomIndex = Math.floor(Math.random() * 25);
+        cells[randomIndex].classList.add('star');
+        cells[randomIndex].textContent = '★';
+      }
+    }
+
+    function resetGrid() {
+      document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove('star');
+        cell.textContent = '';
+      });
+    }
+  </script>
+</body>
+</html>
