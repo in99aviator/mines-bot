@@ -104,9 +104,9 @@ body {
   transform: translateY(-2px);
 }
 
+/* Mine cells will remain exactly like starting cells - no special styling */
 .cell.mine {
-  background: rgba(255, 82, 82, 0.1);
-  border: 2px solid var(--mine-color);
+  /* No additional styles - looks exactly like initial cell */
 }
 
 .cell.safe {
@@ -562,17 +562,6 @@ body {
   left: 100%;
 }
 
-/* Pulse animation on hover */
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 172, 238, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(0, 172, 238, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 172, 238, 0); }
-}
-
-.telegram-btn:hover {
-  animation: pulse 1.5s infinite;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .grid {
@@ -908,11 +897,13 @@ body {
           cell.classList.add('animate');
           
           if (minePositions.includes(index)) {
+            // Mine cell - no changes, remains exactly like starting cell
             setTimeout(() => {
               cell.classList.add('mine');
-              // Empty mine cell as requested
+              // No content added to mine cells
             }, 150);
           } else {
+            // Safe cell - show diamond with animation
             setTimeout(() => {
               cell.classList.add('safe');
               cell.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Diamond">';
@@ -941,7 +932,7 @@ body {
     
     // Redirect to Instagram
     function redirectToFollow() {
-      window.open('https://www.instagram.com/crazy.modx._hacks/', '_blank');
+      window.open('https://instagram.com', '_blank');
     }
 
     // Event Listeners
