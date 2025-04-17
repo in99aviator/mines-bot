@@ -17,6 +17,10 @@
       --light: #f8f9fa;
       --gray: #6c757d;
       --white: #ffffff;
+      --google-blue: #4285F4;
+      --google-red: #DB4437;
+      --google-yellow: #F4B400;
+      --google-green: #0F9D58;
     }
 
     * {
@@ -138,6 +142,48 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
     }
+    
+    .btn-google {
+      background: var(--white);
+      color: var(--gray);
+      margin-top: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-google:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .google-icon {
+      background: url('https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg') no-repeat;
+      width: 20px;
+      height: 20px;
+      background-size: contain;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .divider::before {
+      margin-right: 1rem;
+    }
+    
+    .divider::after {
+      margin-left: 1rem;
+    }
 
     .form-footer {
       text-align: center;
@@ -241,6 +287,13 @@
           <i class="fas fa-sign-in-alt"></i>
           <span id="submitText">Login</span>
         </button>
+        
+        <div class="divider">OR</div>
+        
+        <button type="button" id="googleSignInBtn" class="btn btn-google">
+          <div class="google-icon"></div>
+          <span>Continue with Google</span>
+        </button>
       </form>
       
       <div class="form-footer">
@@ -284,6 +337,7 @@
     const submitText = document.getElementById('submitText');
     const toggleText = document.getElementById('toggleText');
     const nameGroup = document.getElementById('nameGroup');
+    const googleSignInBtn = document.getElementById('googleSignInBtn');
     const toast = document.getElementById('toast');
     
     let isLogin = true;
@@ -320,6 +374,80 @@
         toast.classList.remove('show');
       }, 3000);
     }
+    
+    // Handle Google Sign-In
+    googleSignInBtn.addEventListener('click', async () => {
+      try {
+        // Show loading state
+        const originalBtnHTML = googleSignInBtn.innerHTML;
+        googleSignInBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing in...`;
+        googleSignInBtn.disabled = true;
+        
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        
+        // Check if user exists in database
+        const userRef = database.ref('users/' + user.uid);
+        const snapshot = await userRef.once('value');
+        
+        if (!snapshot.exists()) {
+          // User doesn't exist, create new user in database
+          await userRef.set({
+            uid: user.uid,
+            name: user.displayName || 'Google User',
+            email: user.email,
+            status: "no active",
+            registrationDate: new Date().toISOString(),
+            provider: "google"
+          });
+        }
+        
+        // Check user status
+        const userData = snapshot.val() || (await userRef.once('value')).val();
+        
+        if (userData.status === "active") {
+          showToast('Login successful! Redirecting...');
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1000);
+        } else if (userData.status === "blocked") {
+          showToast('Your account is blocked', true);
+          await auth.signOut();
+          setTimeout(() => {
+            window.location.href = "blocked.html";
+          }, 1000);
+        } else {
+          showToast('Your account is not active', true);
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1000);
+        }
+      } catch (error) {
+        console.error("Google Sign-In error:", error);
+        
+        let errorMessage = error.message;
+        if (error.code) {
+          switch(error.code) {
+            case 'auth/account-exists-with-different-credential':
+              errorMessage = 'Account already exists with different credentials';
+              break;
+            case 'auth/popup-closed-by-user':
+              errorMessage = 'Sign-in popup was closed';
+              break;
+            case 'auth/cancelled-popup-request':
+              errorMessage = 'Sign-in cancelled';
+              break;
+          }
+        }
+        
+        showToast(errorMessage, true);
+      } finally {
+        // Reset button state
+        googleSignInBtn.innerHTML = `<div class="google-icon"></div><span>Continue with Google</span>`;
+        googleSignInBtn.disabled = false;
+      }
+    });
     
     // Handle form submission
     submitBtn.addEventListener('click', async () => {
@@ -360,7 +488,8 @@
             name: name,
             email: email,
             status: "no active",
-            registrationDate: new Date().toISOString()
+            registrationDate: new Date().toISOString(),
+            provider: "email"
           });
           
           showToast('Registration successful! Please login');
